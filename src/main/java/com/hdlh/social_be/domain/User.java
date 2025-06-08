@@ -7,8 +7,8 @@ import lombok.*;
 @Table(name = "users")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 //Tự động tạo pattern Builder giúp bạn khởi tạo đối tượng linh hoạt hơn, nhất là khi có nhiều field.
 //User user = User.builder()
@@ -30,4 +30,5 @@ public class User {
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
+
 }
