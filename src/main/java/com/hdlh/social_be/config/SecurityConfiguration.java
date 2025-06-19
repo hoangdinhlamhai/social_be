@@ -67,7 +67,7 @@ public class SecurityConfiguration {
         byte[] decodedKey = Base64.from(jwtKey).decode();
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, ALGORITHM);
     }
-    //cần thêm bước sinh jwt trong controller
+    //cần thêm bước sinh jwt trong authcontroller
 
 
 }
