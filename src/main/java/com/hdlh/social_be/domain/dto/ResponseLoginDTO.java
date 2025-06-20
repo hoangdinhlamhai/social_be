@@ -18,6 +18,6 @@ public class ResponseLoginDTO {
     @NoArgsConstructor
     public static class UserLogin {
         private long id;
-        private String name, email;
+        private String email, password;
     }
 }
