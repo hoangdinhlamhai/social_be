@@ -39,6 +39,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())  // gọi cors(ở đây là cấu hình mặc định)
                 .csrf(c -> c.disable())
                 .authorizeHttpRequests(authorize -> authorize
 //                        .requestMatchers("/messages/**").access(hasScope("message:read"))
