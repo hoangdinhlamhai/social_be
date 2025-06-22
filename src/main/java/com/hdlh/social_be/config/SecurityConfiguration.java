@@ -5,6 +5,7 @@ import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,19 +37,46 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
+    //cấu hình như này mặc dù /logout nằm trong .permitAll nhưng /logout có xử lý token nên vẫn dính lỗi 401 nên phải tách riêng như dưới
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .cors(Customizer.withDefaults())  // gọi cors(ở đây là cấu hình mặc định)
+//                .csrf(c -> c.disable())
+//                .authorizeHttpRequests(authorize -> authorize
+////                        .requestMatchers("/messages/**").access(hasScope("message:read"))
+//                        .requestMatchers("/login", "/logout", "/users").permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())); // xác thực bằng JWT (access_token)
+//        return http.build();
+//    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain permitAllFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(Customizer.withDefaults())  // gọi cors(ở đây là cấu hình mặc định)
+                .securityMatcher("/login", "/logout", "/users")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .logout().disable() // <-- Vô hiệu hoá /logout mặc định
+                .csrf(csrf -> csrf.disable());
+
+        return http.build();
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())  // gọi cors(ở đây là cấu hình mặc định)
-                .csrf(c -> c.disable())
-                .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("/messages/**").access(hasScope("message:read"))
-                        .requestMatchers("/login", "/users").permitAll()
+                .securityMatcher("/api/**") // chỉ áp dụng JWT cho /api/*
+                .authorizeHttpRequests(authz -> authz
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt());
+
         return http.build();
     }
+
 
     //giải mã token
     @Bean

@@ -1,12 +1,10 @@
 package com.hdlh.social_be.util;
 
+import com.hdlh.social_be.config.SecurityConfiguration;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,7 +14,12 @@ import java.util.List;
 
 @Service
 public class SecurityUtil {
+
+    @Value("${social.jwt.base64-secret}")
+    private String jwtKey;
+
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
 
     @Value("${social.jwt.access-token-validity-in-seconds}")
     private long accessTokenExpiration;
@@ -26,8 +29,9 @@ public class SecurityUtil {
 
     public static final MacAlgorithm JW_ALGORITHM = MacAlgorithm.HS256;
 
-    public SecurityUtil(JwtEncoder jwtEncoder) {
+    public SecurityUtil(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
         this.jwtEncoder = jwtEncoder;
+        this.jwtDecoder = jwtDecoder;
     }
 
     public String createAccessToken(String email) {
@@ -69,4 +73,12 @@ public class SecurityUtil {
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
 
     }
+
+    //api logout
+    public String getUsernameFromToken(String token) {
+        //giải mã
+        Jwt jwt = jwtDecoder.decode(token);
+        return jwt.getSubject(); // Subject chính là email
+    }
+
 }

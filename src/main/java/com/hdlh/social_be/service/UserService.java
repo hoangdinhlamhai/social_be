@@ -4,6 +4,8 @@ import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -26,5 +28,14 @@ public class UserService {
             user.setRefreshToken(refreshToken);
             this.userRepository.save(user);
         }
+    }
+
+    //api logout
+    public void clearRefreshToken(String email) {
+        Optional<User> userOptional = Optional.ofNullable(userRepository.findByEmail(email));
+        userOptional.ifPresent(user -> {
+            user.setRefreshToken(null);
+            userRepository.save(user);
+        });
     }
 }

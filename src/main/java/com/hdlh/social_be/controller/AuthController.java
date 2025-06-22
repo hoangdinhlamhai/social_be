@@ -5,9 +5,13 @@ import com.hdlh.social_be.domain.dto.LoginDTO;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
 import com.hdlh.social_be.service.UserService;
 import com.hdlh.social_be.util.SecurityUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 public class AuthController {
@@ -33,6 +39,7 @@ public class AuthController {
         this.userService = userService;
     }
 
+    //access token trả về từ api cho fe tự lưu
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         // nap input username va password cho Spring Security
@@ -78,4 +85,45 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, resCookie.toString())
                 .body(res);
     }
+
+    //có 2 cách xác thực, access token (jwt) và refresh token
+    //dùng refresh_token để xác thực endpoint này, tức là không cần gửi access_token vào header
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+
+        // Lấy cookie refresh_token
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No cookies found!");
+        }
+
+        String refreshToken = null;
+        for (Cookie cookie : cookies) {
+            if ("refresh_token".equals(cookie.getName())) {
+                refreshToken = cookie.getValue();
+                break;
+            }
+        }
+
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found!");
+        }
+
+        // Nếu có thì tìm user theo token & xoá refresh_token khỏi DB
+        String email = securityUtil.getUsernameFromToken(refreshToken); // hoặc getSubject
+        userService.clearRefreshToken(email); // set refresh_token = null trong DB
+
+        // Tạo cookie rỗng để xoá ở phía client
+        ResponseCookie clearCookie = ResponseCookie.from("refresh_token", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
+                .body(Map.of("message", "Đăng xuất thành công"));
+    }
+
 }
