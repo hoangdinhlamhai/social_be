@@ -5,6 +5,7 @@ import com.hdlh.social_be.domain.dto.LoginDTO;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
 import com.hdlh.social_be.service.UserService;
 import com.hdlh.social_be.util.SecurityUtil;
+import com.hdlh.social_be.util.error.IdInvalidException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,9 +19,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -126,4 +126,48 @@ public class AuthController {
                 .body(Map.of("message", "Đăng xuất thành công"));
     }
 
+    @GetMapping("auth/refresh")
+    //@ApiMessage("Get User by refresh token")
+    public ResponseEntity<ResponseLoginDTO> refresh(
+            @CookieValue(name = "refresh_token") String refresh_token
+    ) throws IdInvalidException {
+        //check valid refresh_token có đúng không
+        Jwt decodedToken = this.securityUtil.checkValidRefreshToken(refresh_token);
+        String email = decodedToken.getSubject(); //lấy email dựa trên refresh token
+
+        //check xem có refresh_token ở db ko
+        User currentUser = this.userService.getUserByRefreshTokenAndEmail(refresh_token, email);
+        if (currentUser == null) {
+            throw new IdInvalidException("Refresh token khong hop le");
+        }
+
+        //return ResponseEntity.ok().body(refresh_token); //trả ra token khi gọi api này
+
+        ResponseLoginDTO res = new ResponseLoginDTO();
+
+        //API Login
+        User currentUserDB = this.userService.handleGetUserByUsername(email);
+        if (currentUserDB != null) {
+            ResponseLoginDTO.UserLogin userLogin = new ResponseLoginDTO.UserLogin(currentUserDB.getId(), currentUserDB.getEmail(), currentUserDB.getPassword());
+            res.setUser(userLogin);
+        }
+//        res.setAccessToken(access_token);
+
+        //create refresh token
+        String new_refreshToken = this.securityUtil.createRefreshToken(email, res);
+
+        //update user
+        this.userService.updateRefreshTokenUser(new_refreshToken, email);
+
+        //set cookie
+        ResponseCookie resCookie = ResponseCookie.from("refresh_token", new_refreshToken)
+                .httpOnly(true) //chi cho server dung
+                .secure(true) //chi dung cho https
+                .path("/")
+                .maxAge(refreshTokenExpiration) //thoi gian het han
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, resCookie.toString())
+                .body(res);
+    }
 }

@@ -2,11 +2,14 @@ package com.hdlh.social_be.util;
 
 import com.hdlh.social_be.config.SecurityConfiguration;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
+import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -32,6 +35,11 @@ public class SecurityUtil {
     public SecurityUtil(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
+    }
+
+    private SecretKey getSecretKey() {
+        byte[] keyBytes = Base64.from(jwtKey).decode(); // lấy key từ biến môi trường để mã hoá ngược lại
+        return new SecretKeySpec(keyBytes, 0, keyBytes.length, JW_ALGORITHM.getName());
     }
 
     public String createAccessToken(String email) {
@@ -79,6 +87,19 @@ public class SecurityUtil {
         //giải mã
         Jwt jwt = jwtDecoder.decode(token);
         return jwt.getSubject(); // Subject chính là email
+    }
+
+    //
+    public Jwt checkValidRefreshToken(String token) {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey())
+                .macAlgorithm(SecurityUtil.JW_ALGORITHM)
+                .build();
+        try {
+            return jwtDecoder.decode(token);
+        } catch (Exception e) {
+            System.out.println(">>> JWT error: " + e.getMessage());
+            throw e;
+        }
     }
 
 }

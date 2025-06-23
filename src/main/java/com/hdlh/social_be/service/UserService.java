@@ -38,4 +38,9 @@ public class UserService {
             userRepository.save(user);
         });
     }
+
+    //api refresh token
+    public User getUserByRefreshTokenAndEmail(String refreshToken, String email) {
+        return this.userRepository.findByRefreshTokenAndEmail(refreshToken, email);
+    }
 }
