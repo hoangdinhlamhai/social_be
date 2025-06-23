@@ -1,6 +1,6 @@
 package com.hdlh.social_be.controller;
 
-import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +19,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<Account> createUser(@RequestBody Account user) {
         //hash password
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);

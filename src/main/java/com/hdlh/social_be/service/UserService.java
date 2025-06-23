@@ -1,6 +1,6 @@
 package com.hdlh.social_be.service;
 
-import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +14,16 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User handleCreateUser(User user) {
+    public Account handleCreateUser(Account user) {
         return userRepository.save(user);
     }
 
-    public User handleGetUserByUsername(String email) {
+    public Account handleGetUserByUsername(String email) {
         return this.userRepository.findByEmail(email);
     }
 
     public void updateRefreshTokenUser(String refreshToken, String email) {
-        User user = this.userRepository.findByEmail(email);
+        Account user = this.userRepository.findByEmail(email);
         if (user != null) {
             user.setRefreshToken(refreshToken);
             this.userRepository.save(user);
@@ -32,7 +32,7 @@ public class UserService {
 
     //api logout
     public void clearRefreshToken(String email) {
-        Optional<User> userOptional = Optional.ofNullable(userRepository.findByEmail(email));
+        Optional<Account> userOptional = Optional.ofNullable(userRepository.findByEmail(email));
         userOptional.ifPresent(user -> {
             user.setRefreshToken(null);
             userRepository.save(user);
@@ -40,7 +40,7 @@ public class UserService {
     }
 
     //api refresh token
-    public User getUserByRefreshTokenAndEmail(String refreshToken, String email) {
+    public Account getUserByRefreshTokenAndEmail(String refreshToken, String email) {
         return this.userRepository.findByRefreshTokenAndEmail(refreshToken, email);
     }
 }

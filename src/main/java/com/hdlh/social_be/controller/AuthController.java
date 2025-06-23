@@ -1,6 +1,6 @@
 package com.hdlh.social_be.controller;
 
-import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.domain.dto.LoginDTO;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
 import com.hdlh.social_be.service.UserService;
@@ -61,7 +61,7 @@ public class AuthController {
         ResponseLoginDTO res = new ResponseLoginDTO();
 
         //API Login
-        User currentUserDB = this.userService.handleGetUserByUsername(loginDTO.getEmail());
+        Account currentUserDB = this.userService.handleGetUserByUsername(loginDTO.getEmail());
         if (currentUserDB != null) {
             ResponseLoginDTO.UserLogin userLogin = new ResponseLoginDTO.UserLogin(currentUserDB.getId(), currentUserDB.getEmail(), currentUserDB.getPassword());
             res.setUser(userLogin);
@@ -136,7 +136,7 @@ public class AuthController {
         String email = decodedToken.getSubject(); //lấy email dựa trên refresh token
 
         //check xem có refresh_token ở db ko
-        User currentUser = this.userService.getUserByRefreshTokenAndEmail(refresh_token, email);
+        Account currentUser = this.userService.getUserByRefreshTokenAndEmail(refresh_token, email);
         if (currentUser == null) {
             throw new IdInvalidException("Refresh token khong hop le");
         }
@@ -146,7 +146,7 @@ public class AuthController {
         ResponseLoginDTO res = new ResponseLoginDTO();
 
         //API Login
-        User currentUserDB = this.userService.handleGetUserByUsername(email);
+        Account currentUserDB = this.userService.handleGetUserByUsername(email);
         if (currentUserDB != null) {
             ResponseLoginDTO.UserLogin userLogin = new ResponseLoginDTO.UserLogin(currentUserDB.getId(), currentUserDB.getEmail(), currentUserDB.getPassword());
             res.setUser(userLogin);

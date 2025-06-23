@@ -1,6 +1,6 @@
 package com.hdlh.social_be.service;
 
-import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.Account;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +19,7 @@ public class UserDetailsCustom implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = this.userService.handleGetUserByUsername(email);
+        Account user = this.userService.handleGetUserByUsername(email);
         if (user == null) {
             throw new UsernameNotFoundException("Email/password khong duoc de trong");
         }
