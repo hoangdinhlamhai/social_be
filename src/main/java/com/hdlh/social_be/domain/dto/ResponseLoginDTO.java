@@ -10,13 +10,13 @@ import lombok.Setter;
 //để định dạng lại token trả về
 public class ResponseLoginDTO {
     private String accessToken;
-    private UserLogin user;
+    private AccountLogin accountLogin;
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UserLogin {
+    public static class AccountLogin {
         private long id;
         private String email, password;
     }

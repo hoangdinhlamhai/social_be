@@ -11,21 +11,21 @@ import java.util.Collections;
 
 @Component("userDetailsService") // ghi đè lại bean => quy tắc đặt tên là tự động đổi chữ hoa đầu tiên thành chữ thường
 public class UserDetailsCustom implements UserDetailsService {
-    private final UserService userService;
+    private final AccountService accountService;
 
-    public UserDetailsCustom(UserService userService) {
-        this.userService = userService;
+    public UserDetailsCustom(AccountService accountService) {
+        this.accountService = accountService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Account user = this.userService.handleGetUserByUsername(email);
-        if (user == null) {
+        Account account = this.accountService.handleGetAccountByUsername(email);
+        if (account == null) {
             throw new UsernameNotFoundException("Email/password khong duoc de trong");
         }
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
+                account.getEmail(),
+                account.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
 

@@ -1,6 +1,5 @@
 package com.hdlh.social_be.util;
 
-import com.hdlh.social_be.config.SecurityConfiguration;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
 import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,7 +73,7 @@ public class SecurityUtil {
                 .issuedAt(now)
                 .expiresAt(validity)
                 .subject(email)
-                .claim("heri", responseLoginDTO.getUser())
+                .claim("heri", responseLoginDTO.getAccountLogin())
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JW_ALGORITHM).build();

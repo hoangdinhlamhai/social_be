@@ -3,6 +3,7 @@ package com.hdlh.social_be.controller;
 import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.domain.dto.LoginDTO;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
+import com.hdlh.social_be.service.AccountService;
 import com.hdlh.social_be.service.UserService;
 import com.hdlh.social_be.util.SecurityUtil;
 import com.hdlh.social_be.util.error.IdInvalidException;
@@ -29,14 +30,16 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
     private final UserService userService;
+    private final AccountService accountService;
 
     @Value("${social.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService, AccountService accountService) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
+        this.accountService = accountService;
     }
 
     //access token trả về từ api cho fe tự lưu
@@ -61,18 +64,18 @@ public class AuthController {
         ResponseLoginDTO res = new ResponseLoginDTO();
 
         //API Login
-        Account currentUserDB = this.userService.handleGetUserByUsername(loginDTO.getEmail());
-        if (currentUserDB != null) {
-            ResponseLoginDTO.UserLogin userLogin = new ResponseLoginDTO.UserLogin(currentUserDB.getId(), currentUserDB.getEmail(), currentUserDB.getPassword());
-            res.setUser(userLogin);
+        Account currentAccountDB = this.accountService.handleGetAccountByUsername(loginDTO.getEmail());
+        if (currentAccountDB != null) {
+            ResponseLoginDTO.AccountLogin accountLogin = new ResponseLoginDTO.AccountLogin(currentAccountDB.getId(), currentAccountDB.getEmail(), currentAccountDB.getPassword());
+            res.setAccountLogin(accountLogin);
         }
         res.setAccessToken(access_token);
 
         //create refresh_token
-        String refresh_token = this.securityUtil.createRefreshToken(currentUserDB.getEmail(), res);
+        String refresh_token = this.securityUtil.createRefreshToken(currentAccountDB.getEmail(), res);
 
-        //lưu refresh_token cho user
-        this.userService.updateRefreshTokenUser(refresh_token, loginDTO.getEmail());
+        //lưu refresh_token
+        this.accountService.updateRefreshTokenAccount(refresh_token, loginDTO.getEmail());
 
         //set cookie
         ResponseCookie resCookie = ResponseCookie.from("refresh_token", refresh_token)
@@ -89,7 +92,7 @@ public class AuthController {
     //có 2 cách xác thực, access token (jwt) và refresh token
     //dùng refresh_token để xác thực endpoint này, tức là không cần gửi access_token vào header
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request) {
 
         // Lấy cookie refresh_token
         Cookie[] cookies = request.getCookies();
@@ -111,7 +114,7 @@ public class AuthController {
 
         // Nếu có thì tìm user theo token & xoá refresh_token khỏi DB
         String email = securityUtil.getUsernameFromToken(refreshToken); // hoặc getSubject
-        userService.clearRefreshToken(email); // set refresh_token = null trong DB
+        accountService.clearRefreshToken(email); // set refresh_token = null trong DB
 
         // Tạo cookie rỗng để xoá ở phía client
         ResponseCookie clearCookie = ResponseCookie.from("refresh_token", "")
@@ -136,8 +139,8 @@ public class AuthController {
         String email = decodedToken.getSubject(); //lấy email dựa trên refresh token
 
         //check xem có refresh_token ở db ko
-        Account currentUser = this.userService.getUserByRefreshTokenAndEmail(refresh_token, email);
-        if (currentUser == null) {
+        Account currentAccount = this.accountService.getUserByRefreshTokenAndEmail(refresh_token, email);
+        if (currentAccount == null) {
             throw new IdInvalidException("Refresh token khong hop le");
         }
 
@@ -146,18 +149,18 @@ public class AuthController {
         ResponseLoginDTO res = new ResponseLoginDTO();
 
         //API Login
-        Account currentUserDB = this.userService.handleGetUserByUsername(email);
-        if (currentUserDB != null) {
-            ResponseLoginDTO.UserLogin userLogin = new ResponseLoginDTO.UserLogin(currentUserDB.getId(), currentUserDB.getEmail(), currentUserDB.getPassword());
-            res.setUser(userLogin);
+        Account currentAccountDB = this.accountService.handleGetAccountByUsername(email);
+        if (currentAccountDB != null) {
+            ResponseLoginDTO.AccountLogin accountLogin = new ResponseLoginDTO.AccountLogin(currentAccountDB.getId(), currentAccountDB.getEmail(), currentAccountDB.getPassword());
+            res.setAccountLogin(accountLogin);
         }
 //        res.setAccessToken(access_token);
 
         //create refresh token
         String new_refreshToken = this.securityUtil.createRefreshToken(email, res);
 
-        //update user
-        this.userService.updateRefreshTokenUser(new_refreshToken, email);
+        //update refresh_token
+        this.accountService.updateRefreshTokenAccount(new_refreshToken, email);
 
         //set cookie
         ResponseCookie resCookie = ResponseCookie.from("refresh_token", new_refreshToken)

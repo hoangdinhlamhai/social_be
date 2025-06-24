@@ -1,12 +1,11 @@
 package com.hdlh.social_be.repository;
 
-import com.hdlh.social_be.domain.Account;
+import com.hdlh.social_be.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<Account, Long> {
-    Account findByEmail(String email);
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Account findByRefreshTokenAndEmail(String refreshToken, String email);
+
 }
