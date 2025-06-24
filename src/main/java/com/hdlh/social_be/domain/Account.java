@@ -1,5 +1,6 @@
 package com.hdlh.social_be.domain;
 
+import com.hdlh.social_be.domain.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,8 +31,8 @@ public class Account {
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
 
-//    @Enumerated(EnumType.STRING)
-//    private AccountType type; // PERSONAL, COMPANY
+    @Enumerated(EnumType.STRING)
+    private AccountType type; // PERSONAL, COMPANY
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private User user;

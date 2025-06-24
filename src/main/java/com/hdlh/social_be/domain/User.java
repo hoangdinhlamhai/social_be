@@ -25,6 +25,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String avatarUrl;
+    private String coverPhotoUrl;
     private String bio;
 
     //cascade = CascadeType.ALL:
