@@ -36,6 +36,7 @@ public class Account {
     private AccountType accountType; // PERSONAL, COMPANY
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private User user;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)

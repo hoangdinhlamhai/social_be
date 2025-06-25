@@ -21,6 +21,8 @@ public class User {
 
     @OneToOne
     @JoinColumn(name = "account_id", unique = true)
+    @JsonBackReference //khi serialize Account, nó sẽ include User,
+    // nhưng khi đi ngược lại từ User về Account, nó bỏ qua để tránh lặp.
     private Account account;
 
     private String firstName;
