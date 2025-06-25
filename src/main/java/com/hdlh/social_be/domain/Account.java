@@ -1,5 +1,6 @@
 package com.hdlh.social_be.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hdlh.social_be.domain.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,7 +33,7 @@ public class Account {
     private String refreshToken;
 
     @Enumerated(EnumType.STRING)
-    private AccountType type; // PERSONAL, COMPANY
+    private AccountType accountType; // PERSONAL, COMPANY
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private User user;

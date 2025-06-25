@@ -1,5 +1,6 @@
 package com.hdlh.social_be.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 

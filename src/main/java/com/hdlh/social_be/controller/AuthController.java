@@ -1,8 +1,11 @@
 package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.domain.Account;
+import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.LoginDTO;
+import com.hdlh.social_be.domain.dto.RegisterDTO;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
+import com.hdlh.social_be.domain.enums.AccountType;
 import com.hdlh.social_be.service.AccountService;
 import com.hdlh.social_be.service.UserService;
 import com.hdlh.social_be.util.SecurityUtil;
@@ -20,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,17 +33,38 @@ import java.util.Map;
 public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
-    private final UserService userService;
     private final AccountService accountService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${social.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService, AccountService accountService) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, AccountService accountService, PasswordEncoder passwordEncoder) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
-        this.userService = userService;
         this.accountService = accountService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO registerDTO) {
+        if(accountService.checkIfAccountExists(registerDTO.getEmail())) {
+            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = new User();
+        user.setFirstName(registerDTO.getFirstName());
+        user.setLastName(registerDTO.getLastName());
+        // userRepository.save(user); // có thể bỏ nếu dùng cascade ở Account
+
+        Account account = new Account();
+        account.setEmail(registerDTO.getEmail());
+        account.setPassword(passwordEncoder.encode(registerDTO.getPassword())); // mã hóa!
+        account.setAccountType(AccountType.valueOf(registerDTO.getAccountType()));
+        account.setUser(user); // gán user vào account
+        user.setAccount(account); // gán account vào user
+
+        return ResponseEntity.ok(accountService.handleSaveAccount(account));
     }
 
     //access token trả về từ api cho fe tự lưu

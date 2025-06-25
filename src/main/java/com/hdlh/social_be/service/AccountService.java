@@ -43,4 +43,13 @@ public class AccountService {
     public Account getUserByRefreshTokenAndEmail(String refreshToken, String email) {
         return this.accountRepository.findByRefreshTokenAndEmail(refreshToken, email);
     }
+
+    //register
+    public boolean checkIfAccountExists(String email) {
+        return accountRepository.existsByEmail(email);
+    }
+
+    public Account handleSaveAccount(Account account) {
+        return this.accountRepository.save(account);
+    }
 }
