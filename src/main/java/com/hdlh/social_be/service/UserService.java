@@ -2,6 +2,7 @@ package com.hdlh.social_be.service;
 
 import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.dto.ProfileRequestDTO;
 import com.hdlh.social_be.repository.AccountRepository;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,31 @@ public class UserService {
 //        return this.userRepository.findByEmail(email);
 //    }
 
-    public User handleAddInfoUser(User user, long userId) {
-        Optional<Account> acc = this.accountRepository.findById(userId);
-        user.setAccount(acc.get());
+    public User handleUpdateInfoUser(ProfileRequestDTO userDTO, long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (userDTO.getFirstName() != null) {
+            user.setFirstName(userDTO.getFirstName());
+        }
+
+        if (userDTO.getLastName() != null) {
+            user.setLastName(userDTO.getLastName());
+        }
+
+        if (userDTO.getAvatarUrl() != null) {
+            user.setAvatarUrl(userDTO.getAvatarUrl());
+        }
+
+        if (userDTO.getCoverPhotoUrl() != null) {
+            user.setCoverPhotoUrl(userDTO.getCoverPhotoUrl());
+        }
+
+        if (userDTO.getBio() != null) {
+            user.setBio(userDTO.getBio());
+        }
+
         return userRepository.save(user);
     }
 
-    public User handleUpdateInfoUser(User user) {
-        return userRepository.save(user);
-    }
 }

@@ -57,7 +57,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain permitAllFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())  // gọi cors(ở đây là cấu hình mặc định)
-                .securityMatcher("/login", "/logout", "/accounts")
+                .securityMatcher("/login", "/logout", "/register")
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .logout().disable() // <-- Vô hiệu hoá /logout mặc định
                 .csrf(csrf -> csrf.disable());

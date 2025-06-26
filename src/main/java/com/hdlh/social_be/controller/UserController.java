@@ -1,6 +1,7 @@
 package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.dto.ProfileRequestDTO;
 import com.hdlh.social_be.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +14,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/api/users/{userId}/profile")
-    public ResponseEntity<User> addInfoUser(@RequestBody User user, @PathVariable Long userId) {
-        return ResponseEntity.ok(this.userService.handleAddInfoUser(user, userId));
+    //patch chỉ update trường gửi lên, những trường không gửi sẽ không bị mất như put (phải có điều kiện)
+    @PatchMapping("/api/users/{userId}/profile")
+    public ResponseEntity<User> addInfoUser(@RequestBody ProfileRequestDTO userDTO, @PathVariable Long userId) {
+        return ResponseEntity.ok(this.userService.handleUpdateInfoUser(userDTO, userId));
     }
 
-    @PutMapping("/api/users/{userId}/profile")
-    public ResponseEntity<User> updateInfoUser(@RequestBody User user) {
-        return ResponseEntity.ok(this.userService.handleUpdateInfoUser(user));
-    }
 }
