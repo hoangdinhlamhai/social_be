@@ -14,6 +14,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/api/users/{userId}")
+    public ResponseEntity<ProfileRequestDTO> getUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.handleGetUserById(userId));
+    }
+
     //patch chỉ update trường gửi lên, những trường không gửi sẽ không bị mất như put (phải có điều kiện)
     @PatchMapping("/api/users/{userId}/profile")
     public ResponseEntity<User> addInfoUser(@RequestBody ProfileRequestDTO userDTO, @PathVariable Long userId) {

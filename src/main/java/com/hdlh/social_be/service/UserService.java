@@ -23,6 +23,19 @@ public class UserService {
 //        return this.userRepository.findByEmail(email);
 //    }
 
+    public ProfileRequestDTO handleGetUserById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        ProfileRequestDTO profileRequestDTO = new ProfileRequestDTO();
+
+        profileRequestDTO.setFirstName(user.get().getFirstName());
+        profileRequestDTO.setLastName(user.get().getLastName());
+        profileRequestDTO.setAvatarUrl(user.get().getAvatarUrl());
+        profileRequestDTO.setAvatarUrl(user.get().getAvatarUrl());
+        profileRequestDTO.setBio(user.get().getBio());
+
+        return profileRequestDTO;
+    }
+
     public User handleUpdateInfoUser(ProfileRequestDTO userDTO, long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
