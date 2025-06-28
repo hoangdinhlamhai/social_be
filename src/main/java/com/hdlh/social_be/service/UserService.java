@@ -23,6 +23,19 @@ public class UserService {
 //        return this.userRepository.findByEmail(email);
 //    }
 
+    public ProfileRequestDTO handleGetUserByEmail(String email) {
+        Optional<User> user = Optional.ofNullable(userRepository.findByAccount_Email(email));
+        ProfileRequestDTO profileRequestDTO = new ProfileRequestDTO();
+
+        profileRequestDTO.setFirstName(user.get().getFirstName());
+        profileRequestDTO.setLastName(user.get().getLastName());
+        profileRequestDTO.setAvatarUrl(user.get().getAvatarUrl());
+        profileRequestDTO.setAvatarUrl(user.get().getAvatarUrl());
+        profileRequestDTO.setBio(user.get().getBio());
+
+        return profileRequestDTO;
+    }
+
     public ProfileRequestDTO handleGetUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         ProfileRequestDTO profileRequestDTO = new ProfileRequestDTO();

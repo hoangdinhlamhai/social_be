@@ -84,6 +84,8 @@ public class AuthController {
         String access_token = this.securityUtil.createAccessToken(authentication.getName());
 
         // tạo token xong thì xét data cho SecurityContext, sau này lấy data từ đây (dự án này thì xoá đi cũng được)
+        // lưu thông tin đăng nhập (authentication) vào SecurityContext của Spring Security,
+        // giúp hệ thống biết ai là người đang đăng nhập trong suốt vòng đời của request hiện tại
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResponseLoginDTO res = new ResponseLoginDTO();

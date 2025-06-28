@@ -4,6 +4,8 @@ import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.ProfileRequestDTO;
 import com.hdlh.social_be.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,9 +16,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/api/users/{userId}")
-    public ResponseEntity<ProfileRequestDTO> getUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(userService.handleGetUserById(userId));
+    //profile cá nhân
+    @GetMapping("/api/me")
+    public ResponseEntity<ProfileRequestDTO> getCurrentUserProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // hoặc getPrincipal()
+
+        ProfileRequestDTO profile = userService.handleGetUserByEmail(email);
+        return ResponseEntity.ok(profile);
+    }
+    
+    @GetMapping("/api/users/{email}")
+    public ResponseEntity<ProfileRequestDTO> getUser(@PathVariable String email) {
+        return ResponseEntity.ok(userService.handleGetUserByEmail(email));
     }
 
     //patch chỉ update trường gửi lên, những trường không gửi sẽ không bị mất như put (phải có điều kiện)
