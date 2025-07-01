@@ -42,4 +42,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    private City city;
+
 }

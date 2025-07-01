@@ -5,6 +5,8 @@ import com.hdlh.social_be.domain.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "accounts")
 @Getter
@@ -35,11 +37,20 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountType accountType; // PERSONAL, COMPANY
 
+    @Column(updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     @JsonManagedReference
     private User user;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Company company;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Date();
+    }
 
 }
