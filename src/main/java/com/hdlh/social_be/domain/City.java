@@ -1,5 +1,6 @@
 package com.hdlh.social_be.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class City {
 
     @ManyToOne
     @JoinColumn(name = "country_id")
+    @JsonBackReference
     private Country country;
 
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL)
