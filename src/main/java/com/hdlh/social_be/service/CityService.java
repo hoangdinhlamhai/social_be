@@ -5,6 +5,7 @@ import com.hdlh.social_be.repository.CityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CityService {
@@ -16,5 +17,9 @@ public class CityService {
 
     public List<City> getCitiesByCountry(Long countryId) {
         return cityRepository.findByCountryId(countryId);
+    }
+
+    public Optional<City> getCityById(Long id) {
+        return cityRepository.findById(id);
     }
 }

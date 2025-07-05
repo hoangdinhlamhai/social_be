@@ -2,6 +2,7 @@ package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.ProfileRequestDTO;
+import com.hdlh.social_be.domain.dto.ProfileResponseDTO;
 import com.hdlh.social_be.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,16 +19,16 @@ public class UserController {
 
     //profile cá nhân
     @GetMapping("/api/me")
-    public ResponseEntity<ProfileRequestDTO> getCurrentUserProfile() {
+    public ResponseEntity<ProfileResponseDTO> getCurrentUserProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName(); // hoặc getPrincipal()
 
-        ProfileRequestDTO profile = userService.handleGetUserByEmail(email);
+        ProfileResponseDTO profile = userService.handleGetUserByEmail(email);
         return ResponseEntity.ok(profile);
     }
     
     @GetMapping("/api/users/{email}")
-    public ResponseEntity<ProfileRequestDTO> getUser(@PathVariable String email) {
+    public ResponseEntity<ProfileResponseDTO> getUser(@PathVariable String email) {
         return ResponseEntity.ok(userService.handleGetUserByEmail(email));
     }
 

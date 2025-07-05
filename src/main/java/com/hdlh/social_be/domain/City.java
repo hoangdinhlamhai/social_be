@@ -1,6 +1,7 @@
 package com.hdlh.social_be.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,7 @@ public class City {
     private Country country;
 
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL)
+    @JsonManagedReference //tránh lặp vô hạn khi gọi api
     private List<User> users = new ArrayList<>();
 }
 
