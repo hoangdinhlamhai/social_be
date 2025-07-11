@@ -42,6 +42,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences = new ArrayList<>();
 
+    //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "city_id")
     @JsonBackReference

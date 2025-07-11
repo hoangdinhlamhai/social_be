@@ -86,8 +86,6 @@ public class UserService {
 //    }
 
     public User handleUpdateInfoUser(ProfileRequestDTO userDTO, long userId) {
-        City city = cityService.getCityById(userDTO.getCityId())
-                .orElseThrow(() -> new RuntimeException("City not found"));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -112,7 +110,11 @@ public class UserService {
             user.setBio(userDTO.getBio());
         }
 
-        user.setCity(city);
+        if (userDTO.getCityId() != 0) {
+            City city = cityService.getCityById(userDTO.getCityId())
+                    .orElseThrow(() -> new RuntimeException("City not found"));
+            user.setCity(city);
+        }
 
         return userRepository.save(user);
     }
