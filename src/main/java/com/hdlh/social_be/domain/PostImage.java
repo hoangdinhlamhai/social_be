@@ -1,5 +1,6 @@
 package com.hdlh.social_be.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,5 +20,6 @@ public class PostImage {
 
     @ManyToOne
     @JoinColumn(name = "post_id") // khoá ngoại
+    @JsonIgnore // Tránh lỗi lặp vô hạn khi serialize JSON
     private Post post;
 }

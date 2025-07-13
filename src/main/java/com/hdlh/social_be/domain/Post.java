@@ -27,6 +27,10 @@ public class Post {
     private User user;
 
     //bên class kia phải có trường post (và ở table bên kia phải có khoá ngoại post_id)
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "post",
+            cascade = CascadeType.ALL, // Lưu, cập nhật, xóa ImagePost cùng với Post
+            orphanRemoval = true // Xóa ImagePost nếu nó không còn liên kết với Post nào
+    )
     private List<PostImage> postImages = new ArrayList<>();
 }
