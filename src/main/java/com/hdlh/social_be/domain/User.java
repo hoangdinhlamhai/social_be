@@ -1,6 +1,7 @@
 package com.hdlh.social_be.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,6 +45,7 @@ public class User {
 
     //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Post> posts = new ArrayList<>();
 
     @ManyToOne

@@ -2,21 +2,36 @@ package com.hdlh.social_be.service;
 
 import com.hdlh.social_be.domain.Post;
 import com.hdlh.social_be.domain.PostImage;
+import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.post.PostRequestDTO;
 import com.hdlh.social_be.repository.PostRepository;
+import com.hdlh.social_be.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PostService {
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
-    public Post createPost(PostRequestDTO postRequestDTO) {
+    public List<Post> handleGetAllPosts() {
+        return postRepository.findAll();
+    }
+
+    public Post createPost(PostRequestDTO postRequestDTO, String email) {
+        //lấy user đang login
+        User currentUser = userRepository.findByAccount_Email(email);
+
         Post post = new Post();
         post.setContent(postRequestDTO.getContent());
+        post.setUser(currentUser);
 
         if(postRequestDTO.getImageUrls() != null) {
             for (String imageUrl : postRequestDTO.getImageUrls()) {

@@ -26,6 +26,12 @@ public class ImageUploadController {
         String url = cloudinaryAdapter.uploadImage(file, "covers");
         return ResponseEntity.ok(url);
     }
+
+    @PostMapping("/post")
+    public ResponseEntity<String> uploadImagePost(@RequestParam("file") MultipartFile file) {
+        String url = cloudinaryAdapter.uploadImage(file, "posts");
+        return ResponseEntity.ok(url);
+    }
 }
 
 
