@@ -18,14 +18,13 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-
     public PostController(PostService postService) {
         this.postService = postService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
-        return ResponseEntity.status(HttpStatus.OK).body(this.postService.handleGetAllPosts());
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Post>> getAllPostsByIdUser(@PathVariable Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.postService.handleGetAllPostsByIdUser(userId));
     }
 
     @PostMapping

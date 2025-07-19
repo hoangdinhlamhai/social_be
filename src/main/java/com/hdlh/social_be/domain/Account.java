@@ -1,5 +1,6 @@
 package com.hdlh.social_be.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hdlh.social_be.domain.enums.AccountType;
 import jakarta.persistence.*;
@@ -42,7 +43,8 @@ public class Account {
     private Date createdAt;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
-    @JsonManagedReference
+//    @JsonManagedReference
+    @JsonIgnore
     private User user;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)

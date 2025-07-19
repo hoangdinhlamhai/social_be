@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -21,8 +22,10 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    public List<Post> handleGetAllPosts() {
-        return postRepository.findAll();
+    public List<Post> handleGetAllPostsByIdUser(Long userId) {
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với ID: " + userId));
+        return this.postRepository.findAllByUser(user);
     }
 
     public Post createPost(PostRequestDTO postRequestDTO, String email) {

@@ -24,6 +24,7 @@ public class UserController {
         String email = authentication.getName(); // hoặc getPrincipal()
 
         ProfileResponseDTO profile = userService.handleGetUserByEmail(email);
+        System.out.println("===> FETCHING user:");  // KHÔNG log cả user!
         return ResponseEntity.ok(profile);
     }
     

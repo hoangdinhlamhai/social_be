@@ -1,6 +1,7 @@
 package com.hdlh.social_be.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +23,8 @@ public class User {
 
     @OneToOne
     @JoinColumn(name = "account_id", unique = true)
-    @JsonBackReference //khi serialize Account, nó sẽ include User,
+    //@JsonBackReference //khi serialize Account, nó sẽ include User,
+    @JsonIgnore
     // nhưng khi đi ngược lại từ User về Account, nó bỏ qua để tránh lặp.
     private Account account;
 
@@ -45,12 +47,14 @@ public class User {
 
     //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+//    @JsonManagedReference
+    @JsonIgnore
     private List<Post> posts = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "city_id")
-    @JsonBackReference
+//    @JsonBackReference
+    @JsonIgnore
     private City city;
 
 }
