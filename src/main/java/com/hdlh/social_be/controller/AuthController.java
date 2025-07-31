@@ -1,8 +1,10 @@
 package com.hdlh.social_be.controller;
 
+import com.hdlh.social_be.auth.GoogleAuthenticationToken;
 import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.LoginDTO;
+import com.hdlh.social_be.domain.dto.OAuth.GoogleLoginDTO;
 import com.hdlh.social_be.domain.dto.RegisterDTO;
 import com.hdlh.social_be.domain.dto.ResponseLoginDTO;
 import com.hdlh.social_be.domain.enums.AccountType;
@@ -28,6 +30,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class AuthController {
@@ -44,6 +47,117 @@ public class AuthController {
         this.securityUtil = securityUtil;
         this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+    @PostMapping("/auth/oauth/google")
+    public ResponseEntity<?> joinWithGoogle(@Valid @RequestBody GoogleLoginDTO googleLoginDTO) {
+        if(accountService.checkIfAccountExists(googleLoginDTO.getEmail())) {
+            GoogleAuthenticationToken authenticationToken = new GoogleAuthenticationToken(googleLoginDTO.getEmail());
+
+            // xac thuc nguoi dung => can ghi de lai ham loadUserByUserName
+            //Spring Security sẽ tự động dùng UserDetailsService để load user từ database.
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            // đã lấy đc th tin người dùng đnhập thành công
+
+            // create a token
+            // do ở file FormatRestResponse.java cấu hình yêu cầu trả về 1 Obj nên phải tạo
+            // ResponseLoginDTO
+            String access_token = this.securityUtil.createAccessToken(authentication.getName());
+
+            // tạo token xong thì xét data cho SecurityContext, sau này lấy data từ đây (dự án này thì xoá đi cũng được)
+            // lưu thông tin đăng nhập (authentication) vào SecurityContext của Spring Security,
+            // giúp hệ thống biết ai là người đang đăng nhập trong suốt vòng đời của request hiện tại
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            ResponseLoginDTO res = new ResponseLoginDTO();
+
+            //API Login
+            Account currentAccountDB = this.accountService.handleGetAccountByUsername(googleLoginDTO.getEmail());
+            if (currentAccountDB != null) {
+                ResponseLoginDTO.AccountLogin accountLogin = new ResponseLoginDTO.AccountLogin(currentAccountDB.getId(), currentAccountDB.getEmail(), currentAccountDB.getPassword());
+                res.setAccountLogin(accountLogin);
+            }
+            res.setAccessToken(access_token);
+
+            //create refresh_token
+            String refresh_token = this.securityUtil.createRefreshToken(currentAccountDB.getEmail(), res);
+
+            //lưu refresh_token
+            this.accountService.updateRefreshTokenAccount(refresh_token, googleLoginDTO.getEmail());
+
+            //set cookie
+            ResponseCookie resCookie = ResponseCookie.from("refresh_token", refresh_token)
+                    .httpOnly(true) //chi cho server dung
+                    .secure(true) //chi dung cho https
+                    .path("/")
+                    .maxAge(refreshTokenExpiration) //thoi gian het han
+                    .build();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, resCookie.toString())
+                    .body(res);
+        }
+        else {
+            User user = new User();
+            user.setFirstName(googleLoginDTO.getFamily_name());
+            user.setLastName(googleLoginDTO.getGiven_name());
+            // userRepository.save(user); // có thể bỏ nếu dùng cascade ở Account
+            user.setAvatarUrl(googleLoginDTO.getPicture());
+
+            Account account = new Account();
+            account.setEmail(googleLoginDTO.getEmail());
+//            account.setPassword(passwordEncoder.encode(registerDTO.getPassword())); // mã hóa!
+            account.setPassword(UUID.randomUUID().toString()); // giả lập password
+//            account.setAccountType(AccountType.valueOf(registerDTO.getAccountType()));
+            account.setUser(user); // gán user vào account
+            user.setAccount(account); // gán account vào user
+
+            this.accountService.handleSaveAccount(account);
+
+            GoogleAuthenticationToken authenticationToken = new GoogleAuthenticationToken(googleLoginDTO.getEmail());
+
+            // xac thuc nguoi dung => can ghi de lai ham loadUserByUserName
+            //Spring Security sẽ tự động dùng UserDetailsService để load user từ database.
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            // đã lấy đc th tin người dùng đnhập thành công
+
+            // create a token
+            // do ở file FormatRestResponse.java cấu hình yêu cầu trả về 1 Obj nên phải tạo
+            // ResponseLoginDTO
+            String access_token = this.securityUtil.createAccessToken(authentication.getName());
+
+            // tạo token xong thì xét data cho SecurityContext, sau này lấy data từ đây (dự án này thì xoá đi cũng được)
+            // lưu thông tin đăng nhập (authentication) vào SecurityContext của Spring Security,
+            // giúp hệ thống biết ai là người đang đăng nhập trong suốt vòng đời của request hiện tại
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            ResponseLoginDTO res = new ResponseLoginDTO();
+
+            //API Login
+            Account currentAccountDB = this.accountService.handleGetAccountByUsername(googleLoginDTO.getEmail());
+            if (currentAccountDB != null) {
+                ResponseLoginDTO.AccountLogin accountLogin = new ResponseLoginDTO.AccountLogin(currentAccountDB.getId(), currentAccountDB.getEmail(), currentAccountDB.getPassword());
+                res.setAccountLogin(accountLogin);
+            }
+            res.setAccessToken(access_token);
+
+            //create refresh_token
+            String refresh_token = this.securityUtil.createRefreshToken(currentAccountDB.getEmail(), res);
+
+            //lưu refresh_token
+            this.accountService.updateRefreshTokenAccount(refresh_token, googleLoginDTO.getEmail());
+
+            //set cookie
+            ResponseCookie resCookie = ResponseCookie.from("refresh_token", refresh_token)
+                    .httpOnly(true) //chi cho server dung
+                    .secure(true) //chi dung cho https
+                    .path("/")
+                    .maxAge(refreshTokenExpiration) //thoi gian het han
+                    .build();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, resCookie.toString())
+                    .body(res);
+        }
     }
 
     @PostMapping("/register")
@@ -71,10 +185,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         // nap input username va password cho Spring Security
+        //Khi truyền email vào authenticationToken, Spring Security gọi đến userDetailsService.loadUserByUsername(email) để lấy thông tin user từ DB.
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 loginDTO.getEmail(), loginDTO.getPassword());
 
         // xac thuc nguoi dung => can ghi de lai ham loadUserByUserName
+        //Spring Security sẽ tự động dùng UserDetailsService để load user từ database.
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         // đã lấy đc th tin người dùng đnhập thành công
 

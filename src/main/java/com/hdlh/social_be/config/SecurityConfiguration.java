@@ -1,13 +1,16 @@
 package com.hdlh.social_be.config;
 
+import com.hdlh.social_be.auth.GoogleAuthenticationProvider;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +33,14 @@ public class SecurityConfiguration {
     private String jwtKey;
 
     private static final String ALGORITHM = "HmacSHA256";
+
+    //Cấu hình AuthenticationManagerBuilder để thêm provider (dùng authentication không cần xác minh password)
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth,
+                                GoogleAuthenticationProvider googleAuthProvider) {
+        auth.authenticationProvider(googleAuthProvider);
+    }
+
 
     //khai báo hashpassword (gọi trong controller để dùng)
     @Bean
