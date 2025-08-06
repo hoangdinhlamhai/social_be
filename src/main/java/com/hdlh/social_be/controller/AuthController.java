@@ -16,11 +16,13 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -38,15 +40,18 @@ public class AuthController {
     private final SecurityUtil securityUtil;
     private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+
 
     @Value("${social.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, AccountService accountService, PasswordEncoder passwordEncoder) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, AccountService accountService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -57,7 +62,8 @@ public class AuthController {
 
             // xac thuc nguoi dung => can ghi de lai ham loadUserByUserName
             //Spring Security sẽ tự động dùng UserDetailsService để load user từ database.
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+//            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
             // đã lấy đc th tin người dùng đnhập thành công
 
             // create a token
@@ -118,7 +124,8 @@ public class AuthController {
 
             // xac thuc nguoi dung => can ghi de lai ham loadUserByUserName
             //Spring Security sẽ tự động dùng UserDetailsService để load user từ database.
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+//            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
             // đã lấy đc th tin người dùng đnhập thành công
 
             // create a token
@@ -186,12 +193,15 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         // nap input username va password cho Spring Security
         //Khi truyền email vào authenticationToken, Spring Security gọi đến userDetailsService.loadUserByUsername(email) để lấy thông tin user từ DB.
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                loginDTO.getEmail(), loginDTO.getPassword());
+//        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+//                loginDTO.getEmail(), loginDTO.getPassword());
 
         // xac thuc nguoi dung => can ghi de lai ham loadUserByUserName
         //Spring Security sẽ tự động dùng UserDetailsService để load user từ database.
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        //Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        //AuthenticationManager duyệt qua các AuthenticationProvider gặp DaoAuthenticationProvider gọi userDetailsService.loadUserByUsername(email) -> ở đây là UserDetailsCustom
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
+
         // đã lấy đc th tin người dùng đnhập thành công
 
         // create a token
