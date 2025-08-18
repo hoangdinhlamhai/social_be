@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class UserController {
     private final UserService userService;
@@ -24,7 +26,6 @@ public class UserController {
         String email = authentication.getName(); // hoặc getPrincipal()
 
         ProfileResponseDTO profile = userService.handleGetUserByEmail(email);
-        System.out.println("===> FETCHING user:");  // KHÔNG log cả user!
         return ResponseEntity.ok(profile);
     }
     
@@ -37,6 +38,11 @@ public class UserController {
     @PatchMapping("/api/users/{userId}/profile")
     public ResponseEntity<User> addInfoUser(@RequestBody ProfileRequestDTO userDTO, @PathVariable Long userId) {
         return ResponseEntity.ok(this.userService.handleUpdateInfoUser(userDTO, userId));
+    }
+
+    @GetMapping("/api/users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(this.userService.handleGetAllUsers());
     }
 
 }

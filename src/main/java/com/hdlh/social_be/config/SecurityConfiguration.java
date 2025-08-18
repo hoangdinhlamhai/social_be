@@ -89,7 +89,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain permitAllFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())  // gọi cors(ở đây là cấu hình mặc định)
-                .securityMatcher("/login", "/logout", "/register")
+                .securityMatcher("/login", "/logout", "/register", "/check-email")
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .logout().disable() // <-- Vô hiệu hoá /logout mặc định
                 .csrf(csrf -> csrf.disable());
@@ -100,6 +100,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .securityMatcher("/api/**") // chỉ áp dụng JWT cho /api/*
                 .authorizeHttpRequests(authz -> authz
                         .anyRequest().authenticated()

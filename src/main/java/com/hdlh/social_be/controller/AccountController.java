@@ -4,9 +4,7 @@ import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.service.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AccountController {
@@ -24,5 +22,11 @@ public class AccountController {
         String hashedPassword = passwordEncoder.encode(account.getPassword());
         account.setPassword(hashedPassword);
         return ResponseEntity.ok(this.accountService.handleCreateAccount(account));
+    }
+
+    //getmapping ko choi @RequestBody
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        return ResponseEntity.ok(this.accountService.checkIfAccountExists(email));
     }
 }

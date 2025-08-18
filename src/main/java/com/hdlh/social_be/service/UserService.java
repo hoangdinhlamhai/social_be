@@ -10,6 +10,7 @@ import com.hdlh.social_be.repository.AccountRepository;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -117,6 +118,10 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    public List<User> handleGetAllUsers() {
+        return userRepository.findAll();
     }
 
 }
