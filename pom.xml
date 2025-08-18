@@ -121,6 +121,12 @@
 			<version>20230227</version>
 		</dependency>
 
+		<!--email send otp		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -6,6 +6,7 @@ import com.hdlh.social_be.domain.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -41,6 +42,10 @@ public class Account {
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    private String otp;
+
+    private LocalDateTime expiredAt;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
 //    @JsonManagedReference
