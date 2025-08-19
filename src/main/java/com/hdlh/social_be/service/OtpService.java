@@ -30,4 +30,17 @@ public class OtpService {
 
         return String.valueOf(otp);
     }
+
+    public boolean validateOtp(String otp, String email) {
+        Account account = accountRepository.findByEmail(email);
+        if (account != null) {
+            String currentOtp = account.getOtp();
+            if (otp.equals(currentOtp) && account.getExpiredAt().isAfter(LocalDateTime.now())) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
 }

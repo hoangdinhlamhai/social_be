@@ -2,6 +2,7 @@ package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.service.EmailService;
 import com.hdlh.social_be.service.OtpService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,9 +18,14 @@ public class OtpController {
     }
 
     @GetMapping("/send-otp")
-    public String sendOtp(@RequestParam String email) {
+    public ResponseEntity<String> sendOtp(@RequestParam String email) {
         String otp = otpService.generateOtpAndSave(email);
         emailService.sendEmail(email, "Your OTP Code", "Your OTP is: " + otp);
-        return "OTP sent successfully!";
+        return ResponseEntity.ok("Send OTP successful");
+    }
+
+    @GetMapping("/verify-otp")
+    public ResponseEntity<Boolean> verifyOtp(@RequestParam String otp, String email) {
+        return ResponseEntity.ok(this.otpService.validateOtp(otp, email));
     }
 }
