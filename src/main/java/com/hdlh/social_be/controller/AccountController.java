@@ -1,6 +1,7 @@
 package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.domain.Account;
+import com.hdlh.social_be.domain.dto.ChangePasswordRequest;
 import com.hdlh.social_be.service.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,5 +29,10 @@ public class AccountController {
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
         return ResponseEntity.ok(this.accountService.checkIfAccountExists(email));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Account> changePassword(@RequestBody ChangePasswordRequest request, @RequestParam String email) {
+        return ResponseEntity.ok(this.accountService.handleChangePassword(request.getPassword(), email));
     }
 }

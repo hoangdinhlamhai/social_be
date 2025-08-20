@@ -2,6 +2,8 @@ package com.hdlh.social_be.service;
 
 import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.repository.AccountRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -9,8 +11,10 @@ import java.util.Optional;
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
         this.accountRepository = accountRepository;
     }
 
@@ -51,5 +55,15 @@ public class AccountService {
 
     public Account handleSaveAccount(Account account) {
         return this.accountRepository.save(account);
+    }
+
+    public Account handleChangePassword(String newPassword, String email) {
+        Account currentAccount = this.accountRepository.findByEmail(email);
+        if (currentAccount != null) {
+            String newPasswordHash = passwordEncoder.encode(newPassword);
+            currentAccount.setPassword(newPasswordHash);
+            return this.accountRepository.save(currentAccount);
+        }
+        throw new UsernameNotFoundException("Không tìm thấy tài khoản với email: " + email);
     }
 }
