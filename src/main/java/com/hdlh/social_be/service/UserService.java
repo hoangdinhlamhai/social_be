@@ -10,8 +10,10 @@ import com.hdlh.social_be.repository.AccountRepository;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -57,35 +59,6 @@ public class UserService {
         return dto;
     }
 
-
-//    public ProfileResponseDTO handleGetUserById(long id) {
-//        User user = userRepository.findById(id);
-//        if (user == null) {
-//            throw new RuntimeException("User not found with id: " + id);
-//        }
-//
-//        ProfileResponseDTO dto = new ProfileResponseDTO();
-//        dto.setFirstName(user.getFirstName());
-//        dto.setLastName(user.getLastName());
-//        dto.setAvatarUrl(user.getAvatarUrl());
-//        dto.setCoverPhotoUrl(user.getCoverPhotoUrl());
-//        dto.setBio(user.getBio());
-//
-//        if (user.getCity() != null) {
-//            City city = user.getCity();
-//            dto.setCityId(city.getId());
-//            dto.setCityName(city.getName());
-//
-//            if (city.getCountry() != null) {
-//                Country country = city.getCountry();
-//                dto.setCountryId(country.getId());
-//                dto.setCountryName(country.getName());
-//            }
-//        }
-//
-//        return dto;
-//    }
-
     public User handleUpdateInfoUser(ProfileRequestDTO userDTO, long userId) {
 
         User user = userRepository.findById(userId)
@@ -120,8 +93,30 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> handleGetAllUsers() {
-        return userRepository.findAll();
+    public List<ProfileResponseDTO> handleGetAllUsers() {
+        List<User> usersFromDB = userRepository.findAll();
+        List<ProfileResponseDTO> usersDTO = new ArrayList<>();
+        for (User user : usersFromDB) {
+            ProfileResponseDTO dto = new ProfileResponseDTO();
+
+            Account account = user.getAccount();
+            if (account != null) {
+                dto.setEmail(account.getEmail());
+            } else {
+                dto.setEmail(null);
+            }
+
+            dto.setFirstName(user.getFirstName());
+            dto.setLastName(user.getLastName());
+            dto.setAvatarUrl(user.getAvatarUrl());
+            dto.setCoverPhotoUrl(user.getCoverPhotoUrl());
+            dto.setBio(user.getBio());
+
+            usersDTO.add(dto);
+        }
+        return usersDTO;
     }
+
+
 
 }

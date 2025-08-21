@@ -29,8 +29,8 @@ public class UserController {
         return ResponseEntity.ok(profile);
     }
     
-    @GetMapping("/api/users/{email}")
-    public ResponseEntity<ProfileResponseDTO> getUser(@PathVariable String email) {
+    @GetMapping("/api/user-by-email")
+    public ResponseEntity<ProfileResponseDTO> getUser(@RequestParam String email) {
         return ResponseEntity.ok(userService.handleGetUserByEmail(email));
     }
 
@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/api/users")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<ProfileResponseDTO>> getAllUsers() {
         return ResponseEntity.ok(this.userService.handleGetAllUsers());
     }
 

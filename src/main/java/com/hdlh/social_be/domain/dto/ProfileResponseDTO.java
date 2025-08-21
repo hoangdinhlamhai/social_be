@@ -5,6 +5,7 @@ import lombok.Data;
 //server trả về client
 @Data
 public class ProfileResponseDTO {
+    private String email;
     private String firstName;
     private String lastName;
     private String avatarUrl;
