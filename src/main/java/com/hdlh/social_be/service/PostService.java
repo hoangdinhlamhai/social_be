@@ -22,10 +22,13 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    public List<Post> handleGetAllPostsByIdUser(Long userId) {
-        User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user với ID: " + userId));
-        return this.postRepository.findAllByUser(user);
+    public List<Post> handleGetAllPostsByEmail(String email) {
+        User user = this.userRepository.findByAccount_Email(email);
+        if (user != null) {
+            return this.postRepository.findAllByUser(user);
+        } else {
+            return null;
+        }
     }
 
     public Post createPost(PostRequestDTO postRequestDTO, String email) {

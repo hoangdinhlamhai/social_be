@@ -22,9 +22,9 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<Post>> getAllPostsByIdUser(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.postService.handleGetAllPostsByIdUser(userId));
+    @GetMapping("")
+    public ResponseEntity<List<Post>> getAllPostsByEmail(@RequestParam String email) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.postService.handleGetAllPostsByEmail(email));
     }
 
     @PostMapping
