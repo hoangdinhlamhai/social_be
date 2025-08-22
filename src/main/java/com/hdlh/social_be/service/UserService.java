@@ -38,6 +38,11 @@ public class UserService {
         }
 
         ProfileResponseDTO dto = new ProfileResponseDTO();
+        if(user.getAccount() != null) {
+            dto.setEmail(user.getAccount().getEmail());
+        } else {
+            dto.setEmail(null);
+        }
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setAvatarUrl(user.getAvatarUrl());
