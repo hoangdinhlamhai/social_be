@@ -1,5 +1,6 @@
 package com.hdlh.social_be.service;
 
+import com.cloudinary.utils.ObjectUtils;
 import com.hdlh.social_be.adapter.CloudinaryAdapter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpEntity;
@@ -16,8 +17,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,5 +78,46 @@ public class CloudinaryAdapterImpl implements CloudinaryAdapter {
                 .collect(Collectors.joining("&"));
 
         return DigestUtils.sha1Hex(toSign + apiSecret);
+    }
+
+    @Override
+    public String uploadImage(byte[] imageData, String folder) {
+        try {
+            long timestamp = System.currentTimeMillis() / 1000;
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("timestamp", timestamp);
+            params.put("folder", folder);
+
+            String signature = generateSignature(params, apiSecret);
+
+            HttpPost post = new HttpPost("https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload");
+
+            // Tạo một tên file ngẫu nhiên vì byte[] không có tên file
+            String randomFilename = UUID.randomUUID().toString();
+
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            // Sử dụng imageData thay vì file.getBytes()
+            // Sử dụng randomFilename thay vì file.getOriginalFilename()
+            builder.addPart("file", new ByteArrayBody(imageData, ContentType.DEFAULT_BINARY, randomFilename));
+            builder.addTextBody("api_key", apiKey);
+            builder.addTextBody("timestamp", String.valueOf(timestamp));
+            builder.addTextBody("signature", signature);
+            builder.addTextBody("folder", folder);
+
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+
+            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                 CloseableHttpResponse response = httpClient.execute(post)) {
+
+                String json = EntityUtils.toString(response.getEntity());
+                JSONObject jsonObject = new JSONObject(json);
+                return jsonObject.getString("secure_url");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Upload to Cloudinary failed", e);
+        }
     }
 }

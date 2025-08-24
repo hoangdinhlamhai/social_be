@@ -1,5 +1,6 @@
 package com.hdlh.social_be.controller;
 
+import com.hdlh.social_be.adapter.CloudinaryAdapter;
 import com.hdlh.social_be.auth.GoogleAuthenticationToken;
 import com.hdlh.social_be.domain.Account;
 import com.hdlh.social_be.domain.User;
@@ -29,8 +30,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
 
@@ -41,17 +45,24 @@ public class AuthController {
     private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final CloudinaryAdapter cloudinaryAdapter;
 
 
     @Value("${social.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, AccountService accountService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,
+                          SecurityUtil securityUtil,
+                          AccountService accountService,
+                          PasswordEncoder passwordEncoder,
+                          AuthenticationManager authenticationManager,
+                          CloudinaryAdapter cloudinaryAdapter) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.cloudinaryAdapter = cloudinaryAdapter;
     }
 
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -107,6 +118,20 @@ public class AuthController {
             User user = new User();
             user.setFirstName(googleLoginDTO.getFamily_name());
             user.setLastName(googleLoginDTO.getGiven_name());
+            try {
+                URL imageUrl = new URL(googleLoginDTO.getPicture());
+                InputStream inputStream = imageUrl.openStream();
+                byte[] imageBytes = StreamUtils.copyToByteArray(inputStream);
+
+                // Upload lên Cloudinary
+                String cloudinaryUrl = this.cloudinaryAdapter.uploadImage(imageBytes, "avatars_from_googleLogin");
+
+                // Set URL từ Cloudinary cho user
+                user.setAvatarUrl(cloudinaryUrl);
+                inputStream.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             // userRepository.save(user); // có thể bỏ nếu dùng cascade ở Account
             user.setAvatarUrl(googleLoginDTO.getPicture());
 
