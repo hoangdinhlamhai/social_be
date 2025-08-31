@@ -1,6 +1,7 @@
 package com.hdlh.social_be.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hdlh.social_be.domain.dto.ai.recommendation.AiServiceRcmsystemResponse;
 import com.hdlh.social_be.domain.dto.ai.recommendation.GeminiResponse;
 import com.hdlh.social_be.domain.dto.ai.recommendation.UserAiRequestProfileDTO;
 import com.hdlh.social_be.mapper.UserMapper;
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import com.hdlh.social_be.domain.User;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +24,15 @@ public class AiRecommendationService {
     private final UserMapper userMapper;
 
     @Value("${gemini.api.key}")
-    private String apiKey;
+    private String apiKey; //? null ?
 
-    public AiRecommendationService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper, UserRepository userRepository, UserMapper userMapper) {
-        this.webClient = webClientBuilder.build();
+    public AiRecommendationService(WebClient.Builder webClientBuilder,
+                                   ObjectMapper objectMapper,
+                                   UserRepository userRepository,
+                                   UserMapper userMapper
+    ) {
+        this.webClient = webClientBuilder.baseUrl("http://127.0.0.1:8000").build(); //dòng này để thử ai-rcmsystem tự train
+//        this.webClient = webClientBuilder.build();
         this.objectMapper = objectMapper;
         this.userRepository = userRepository;
         this.userMapper = userMapper;
@@ -99,5 +106,39 @@ public class AiRecommendationService {
         List<UserAiRequestProfileDTO> candidateDtos = userMapper.toAiProfileDtoList(candidates);
 
         return this.getRecommendations(currentUserDto, candidateDtos);
+    }
+
+    //Lấy danh sách gợi ý người dùng từ AI Service tự train.
+    public Mono<List<UserAiRequestProfileDTO>> getCustomAiRecommendations(Long userId) {
+        // 1. Gọi đến API Python
+        return webClient.get()
+                .uri("/recommendations/{id}", userId)
+                .retrieve() // Thực hiện request
+                .bodyToMono(AiServiceRcmsystemResponse.class) // Chuyển body response thành object AiServiceResponse
+                .flatMap(response -> {
+                    // 2. Xử lý kết quả trả về từ AI
+                    if (response == null || response.recommendedUserIds() == null || response.recommendedUserIds().isEmpty()) {
+                        // Nếu AI không trả về ID nào, trả về danh sách rỗng
+                        return Mono.just(Collections.<UserAiRequestProfileDTO>emptyList());
+                    }
+
+                    // Chuyển đổi danh sách ID từ String sang Long
+                    List<Long> recommendedIds = response.recommendedUserIds().stream()
+                            .map(Long::parseLong)
+                            .toList();
+
+                    // 3. Dùng danh sách ID để lấy thông tin đầy đủ từ DB
+                    List<User> usersFromDB = userRepository.findAllById(recommendedIds);
+
+                    List<UserAiRequestProfileDTO> recommendedUsers = userMapper.toAiProfileDtoList(usersFromDB);
+
+                    // Trả về danh sách User đầy đủ
+                    return Mono.just(recommendedUsers);
+                })
+                .onErrorResume(error -> {
+                    System.err.println("Lỗi khi gọi AI Service: " + error.getMessage());
+                    // Trả về danh sách rỗng để không làm sập ứng dụng
+                    return Mono.just(Collections.<UserAiRequestProfileDTO>emptyList());
+                });
     }
 }
