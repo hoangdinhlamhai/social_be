@@ -15,16 +15,16 @@ public class ChatRoomParticipant {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("roomId") // Ánh xạ thuộc tính `roomId` trong `ChatRoomParticipantId`
     @JoinColumn(name = "room_id")
-    private ChatRoom room;
+    private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId") // Ánh xạ thuộc tính `userId` trong `ChatRoomParticipantId`
     @JoinColumn(name = "user_id")
     private User user;
 
-    public ChatRoomParticipant(ChatRoom room, User user) {
-        this.room = room;
+    public ChatRoomParticipant(ChatRoom chatRoom, User user) {
+        this.chatRoom = chatRoom;
         this.user = user;
-        this.id = new ChatRoomParticipantId(room.getId(), user.getId());
+        this.id = new ChatRoomParticipantId(chatRoom.getId(), user.getId());
     }
 }
