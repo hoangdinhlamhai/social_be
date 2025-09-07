@@ -9,11 +9,11 @@ import org.springframework.stereotype.Controller;
 
 //khác với REST Controller, dùng @MessageMapping để xử lý các tin nhắn gửi qua WebSocket.
 @Controller
-public class ChatRealTimeController {
+public class WebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRealTimeService chatRealTimeService;
 
-    public ChatRealTimeController(SimpMessagingTemplate messagingTemplate, ChatRealTimeService chatRealTimeService) {
+    public WebSocketController(SimpMessagingTemplate messagingTemplate, ChatRealTimeService chatRealTimeService) {
         this.messagingTemplate = messagingTemplate;
         this.chatRealTimeService = chatRealTimeService;
     }
@@ -28,4 +28,5 @@ public class ChatRealTimeController {
         // Ví dụ: /topic/chat/room/123
         messagingTemplate.convertAndSend("/topic/chat/room/" + savedMessage.getRoomId(), savedMessage);
     }
+
 }
