@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/chat/rooms")
+@RequestMapping("/api/chat")
 public class ChatRoomController {
     private ChatRoomService chatRoomService;
 
@@ -18,7 +18,7 @@ public class ChatRoomController {
         this.chatRoomService = chatRoomService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/create-room")
     public ResponseEntity<ChatRoom> createChatRoom(@RequestBody UserInRoomChatDTO userInRoomChatDTO) {
         return ResponseEntity.ok(this.chatRoomService.handleCreateChat(userInRoomChatDTO.getUserIdLogin(), userInRoomChatDTO.getUserId()));
     }
