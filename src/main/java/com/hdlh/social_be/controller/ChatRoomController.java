@@ -1,6 +1,7 @@
 package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.domain.ChatRoom;
+import com.hdlh.social_be.domain.dto.chat_realtime.ChatRoomResponseDTO;
 import com.hdlh.social_be.domain.dto.chat_realtime.UserInRoomChatDTO;
 import com.hdlh.social_be.service.ChatRoomService;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class ChatRoomController {
     }
 
     @PostMapping("/create-room")
-    public ResponseEntity<ChatRoom> createChatRoom(@RequestBody UserInRoomChatDTO userInRoomChatDTO) {
+    public ResponseEntity<ChatRoomResponseDTO> createChatRoom(@RequestBody UserInRoomChatDTO userInRoomChatDTO) {
         return ResponseEntity.ok(this.chatRoomService.handleCreateChat(userInRoomChatDTO.getUserIdLogin(), userInRoomChatDTO.getUserId()));
     }
 }
