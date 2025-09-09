@@ -48,10 +48,11 @@ public class ChatRoomService {
         responseDTO.setId(savedChatRoom.getId());
         responseDTO.setCreatedAt(savedChatRoom.getCreatedAt());
 
-        Set<Long> userIds = savedChatRoom.getParticipants().stream()
-                .map(participant -> participant.getUser().getId())
+        Set<User> users = savedChatRoom.getParticipants().stream()
+                .map(participant -> participant.getUser())
                 .collect(Collectors.toSet());
-        responseDTO.setParticipantUserIds(userIds);
+
+        responseDTO.setParticipantUser(users);
 
         return responseDTO;
     }
