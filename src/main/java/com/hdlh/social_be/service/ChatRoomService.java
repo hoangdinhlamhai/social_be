@@ -4,6 +4,7 @@ import com.hdlh.social_be.domain.ChatRoom;
 import com.hdlh.social_be.domain.ChatRoomParticipant;
 import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.chat_realtime.ChatRoomResponseDTO;
+import com.hdlh.social_be.domain.dto.chat_realtime.ParticipantInfoDTO;
 import com.hdlh.social_be.repository.ChatRoomRepository;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -48,11 +49,43 @@ public class ChatRoomService {
         responseDTO.setId(savedChatRoom.getId());
         responseDTO.setCreatedAt(savedChatRoom.getCreatedAt());
 
-        Set<User> users = savedChatRoom.getParticipants().stream()
-                .map(participant -> participant.getUser())
+        Set<ParticipantInfoDTO> participantDTOs = savedChatRoom.getParticipants().stream()
+                .map(participant -> {
+                    ParticipantInfoDTO participantDTO = new ParticipantInfoDTO();
+                    User user = participant.getUser();
+                    participantDTO.setId(user.getId());
+                    participantDTO.setFirstName(user.getFirstName());
+                    participantDTO.setLastName(user.getLastName());
+                    participantDTO.setAvatar(user.getAvatarUrl());
+                    return participantDTO;
+                })
                 .collect(Collectors.toSet());
 
-        responseDTO.setParticipantUser(users);
+        responseDTO.setParticipantUser(participantDTOs);
+
+        return responseDTO;
+    }
+
+    @Transactional
+    public ChatRoomResponseDTO handleGetChatRoom(Long roomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId).get();
+
+        Set<ParticipantInfoDTO> participantDTOs = chatRoom.getParticipants().stream()
+                .map(participant -> {
+                    ParticipantInfoDTO participantDTO = new ParticipantInfoDTO();
+                    User user = participant.getUser();
+                    participantDTO.setId(user.getId());
+                    participantDTO.setFirstName(user.getFirstName());
+                    participantDTO.setLastName(user.getLastName());
+                    participantDTO.setAvatar(user.getAvatarUrl());
+                    return participantDTO;
+                })
+                .collect(Collectors.toSet());
+
+        ChatRoomResponseDTO responseDTO = new ChatRoomResponseDTO();
+        responseDTO.setId(chatRoom.getId());
+        responseDTO.setCreatedAt(chatRoom.getCreatedAt());
+        responseDTO.setParticipantUser(participantDTOs); 
 
         return responseDTO;
     }
