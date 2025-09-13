@@ -10,6 +10,7 @@ import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,33 @@ public class ChatRoomService {
         ChatRoomResponseDTO responseDTO = new ChatRoomResponseDTO();
         responseDTO.setId(chatRoom.getId());
         responseDTO.setCreatedAt(chatRoom.getCreatedAt());
-        responseDTO.setParticipantUser(participantDTOs); 
+        responseDTO.setParticipantUser(participantDTOs);
+
+        return responseDTO;
+    }
+
+    public ChatRoomResponseDTO handleGetChatRoomByParticipantId(Long userLoginId, Long userGuestId) {
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomByTwoUserIds(userLoginId, userGuestId)
+                .orElseThrow(() -> new RuntimeException(
+                        String.format("Không tìm thấy phòng chat giữa user %d và %d", userLoginId, userGuestId))
+                );
+
+        Set<ParticipantInfoDTO> participantDTOs = chatRoom.getParticipants().stream()
+                .map(participant -> {
+                    ParticipantInfoDTO participantDTO = new ParticipantInfoDTO();
+                    User user = participant.getUser();
+                    participantDTO.setId(user.getId());
+                    participantDTO.setFirstName(user.getFirstName());
+                    participantDTO.setLastName(user.getLastName());
+                    participantDTO.setAvatar(user.getAvatarUrl());
+                    return participantDTO;
+                })
+                .collect(Collectors.toSet());
+
+        ChatRoomResponseDTO responseDTO = new ChatRoomResponseDTO();
+        responseDTO.setId(chatRoom.getId());
+        responseDTO.setCreatedAt(chatRoom.getCreatedAt());
+        responseDTO.setParticipantUser(participantDTOs);
 
         return responseDTO;
     }

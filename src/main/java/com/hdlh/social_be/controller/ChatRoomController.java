@@ -24,4 +24,9 @@ public class ChatRoomController {
     public ResponseEntity<ChatRoomResponseDTO> getChatRoomById(@RequestParam Long roomId) {
         return ResponseEntity.ok(this.chatRoomService.handleGetChatRoom(roomId));
     }
+
+    @GetMapping("/get-chat-room-by-participantsId")
+    public ResponseEntity<ChatRoomResponseDTO> getChatRoomByUserId(@RequestParam Long userLoginId, @RequestParam Long userGuestId) {
+        return ResponseEntity.ok(this.chatRoomService.handleGetChatRoomByParticipantId(userLoginId, userGuestId));
+    }
 }
