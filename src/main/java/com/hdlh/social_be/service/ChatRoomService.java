@@ -10,7 +10,9 @@ import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -115,5 +117,33 @@ public class ChatRoomService {
         responseDTO.setParticipantUser(participantDTOs);
 
         return responseDTO;
+    }
+
+    public List<ChatRoomResponseDTO> handleGetAllChatRooms(Long userLoginId) {
+        List<ChatRoom> chatRoomList = this.chatRoomRepository.findChatRoomsByUserIdWithDetails(userLoginId);
+        List<ChatRoomResponseDTO> chatRoomResponseDTOList = new ArrayList<>();
+        for(ChatRoom chatRoom : chatRoomList) {
+            ChatRoomResponseDTO chatRoomResponseDTO = new ChatRoomResponseDTO();
+            chatRoomResponseDTO.setId(chatRoom.getId());
+            chatRoomResponseDTO.setCreatedAt(chatRoom.getCreatedAt());
+
+            Set<ParticipantInfoDTO> participantDTOs = chatRoom.getParticipants().stream()
+                    .map(participant -> {
+                        ParticipantInfoDTO participantDTO = new ParticipantInfoDTO();
+                        User user = participant.getUser();
+                        participantDTO.setId(user.getId());
+                        participantDTO.setFirstName(user.getFirstName());
+                        participantDTO.setLastName(user.getLastName());
+                        participantDTO.setAvatar(user.getAvatarUrl());
+                        return participantDTO;
+                    })
+                    .collect(Collectors.toSet());
+
+            chatRoomResponseDTO.setParticipantUser(participantDTOs);
+
+            chatRoomResponseDTOList.add(chatRoomResponseDTO);
+        }
+
+        return chatRoomResponseDTOList;
     }
 }

@@ -6,6 +6,8 @@ import com.hdlh.social_be.service.ChatRoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/chat")
 public class ChatRoomController {
@@ -28,5 +30,10 @@ public class ChatRoomController {
     @GetMapping("/get-chat-room-by-participantsId")
     public ResponseEntity<ChatRoomResponseDTO> getChatRoomByUserId(@RequestParam Long userLoginId, @RequestParam Long userGuestId) {
         return ResponseEntity.ok(this.chatRoomService.handleGetChatRoomByParticipantId(userLoginId, userGuestId));
+    }
+
+    @GetMapping("/get-list-chat-room")
+    public ResponseEntity<List<ChatRoomResponseDTO>> getAllChatRoomsByUserId(@RequestParam Long userLoginId) {
+        return ResponseEntity.ok(this.chatRoomService.handleGetAllChatRooms(userLoginId));
     }
 }
