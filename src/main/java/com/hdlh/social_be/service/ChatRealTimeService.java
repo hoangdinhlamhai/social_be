@@ -39,7 +39,7 @@ public class ChatRealTimeService {
 
         // map lại thông tin trước khi trả về (ví dụ thêm tên người gửi)
         messageDTO.setSenderName(sender.getFirstName() + " " + sender.getLastName());
-        messageDTO.setSentAt(messageEntity.getSentAt().toString());
+        messageDTO.setSentAt(messageEntity.getSentAt());
 
         return messageDTO;
     }

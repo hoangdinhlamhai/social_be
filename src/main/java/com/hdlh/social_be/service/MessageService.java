@@ -27,7 +27,7 @@ public class MessageService {
                 chatMessageDTO.setSenderId(message.getSender().getId());
                 chatMessageDTO.setSenderName(message.getSender().getFirstName() + " " + message.getSender().getLastName());
                 chatMessageDTO.setContent(message.getContent());
-                chatMessageDTO.setSentAt(String.valueOf(message.getSentAt()));
+                chatMessageDTO.setSentAt(message.getSentAt());
 
                 chatMessageDTOs.add(chatMessageDTO);
             }

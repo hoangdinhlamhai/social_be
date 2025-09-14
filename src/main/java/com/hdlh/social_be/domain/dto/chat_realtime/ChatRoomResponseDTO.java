@@ -12,4 +12,5 @@ public class ChatRoomResponseDTO {
     private Long id;
     private LocalDateTime createdAt;
     private Set<ParticipantInfoDTO> participantUser;
+    private ChatMessageDTO lastMessage;
 }

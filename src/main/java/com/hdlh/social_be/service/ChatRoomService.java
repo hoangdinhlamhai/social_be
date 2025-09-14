@@ -2,7 +2,9 @@ package com.hdlh.social_be.service;
 
 import com.hdlh.social_be.domain.ChatRoom;
 import com.hdlh.social_be.domain.ChatRoomParticipant;
+import com.hdlh.social_be.domain.Message;
 import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.dto.chat_realtime.ChatMessageDTO;
 import com.hdlh.social_be.domain.dto.chat_realtime.ChatRoomResponseDTO;
 import com.hdlh.social_be.domain.dto.chat_realtime.ParticipantInfoDTO;
 import com.hdlh.social_be.repository.ChatRoomRepository;
@@ -10,10 +12,7 @@ import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,6 +139,19 @@ public class ChatRoomService {
                     .collect(Collectors.toSet());
 
             chatRoomResponseDTO.setParticipantUser(participantDTOs);
+
+            chatRoom.getMessages().stream().
+                    max(Comparator.comparing(Message::getSentAt)) //tìm tn có sendAt lớn nhất(mới nhất)
+                    .ifPresent(lastMessage -> {
+                        ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
+                        chatMessageDTO.setRoomId(chatRoom.getId());
+                        chatMessageDTO.setSenderId(lastMessage.getSender().getId());
+                        chatMessageDTO.setSenderName(lastMessage.getSender().getFirstName() + " " + lastMessage.getSender().getLastName());
+                        chatMessageDTO.setContent(lastMessage.getContent());
+                        chatMessageDTO.setSentAt(lastMessage.getSentAt());
+
+                        chatRoomResponseDTO.setLastMessage(chatMessageDTO);
+                    });
 
             chatRoomResponseDTOList.add(chatRoomResponseDTO);
         }
