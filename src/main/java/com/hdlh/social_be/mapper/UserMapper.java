@@ -21,9 +21,15 @@ public class UserMapper {
                 .map(skill -> skill.getSkillName())
                 .collect(Collectors.toList());
 
+        String email = user.getAccount().getEmail();
+        String ava_url = user.getAvatarUrl();
+
         return new UserAiRequestProfileDTO(
                 user.getId(),
+                email,
                 fullName,
+                ava_url,
+                user.getBio(),
                 skillNames
         );
     }
