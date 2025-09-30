@@ -31,6 +31,14 @@ public class PostService {
         }
     }
 
+    public Post handleGetPostById(Long id) {
+        Optional<Post> post = this.postRepository.findById(id);
+        if (post.isPresent()) {
+            return post.get();
+        }
+        return null;
+    }
+
     public Post createPost(PostRequestDTO postRequestDTO, String email) {
         //lấy user đang login
         User currentUser = userRepository.findByAccount_Email(email);
@@ -50,5 +58,9 @@ public class PostService {
         }
 
         return postRepository.save(post);
+    }
+
+    public void handleDeletePost(Long id) {
+        this.postRepository.deleteById(id);
     }
 }
