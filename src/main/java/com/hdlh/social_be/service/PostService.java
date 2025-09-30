@@ -60,6 +60,27 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    public Post handleUpdatePost(PostRequestDTO postRequestDTO, Long postId) {
+        Optional<Post> postOptional = this.postRepository.findById(postId);
+        if (postOptional.isPresent()) {
+            Post updatedPost = postOptional.get();
+            if(postRequestDTO.getContent() != null) {
+                updatedPost.setContent(postRequestDTO.getContent());
+            }
+            if(postRequestDTO.getImageUrls() != null) {
+                updatedPost.getPostImages().clear(); //xoa image cu
+                for(String imageUrl : postRequestDTO.getImageUrls()) {
+                    PostImage image = new PostImage();
+                    image.setUrl(imageUrl);
+                    image.setPost(updatedPost); // gắn lại quan hệ
+                    updatedPost.getPostImages().add(image);
+                }
+            }
+            this.postRepository.save(updatedPost);
+        }
+        return null;
+    }
+
     public void handleDeletePost(Long id) {
         this.postRepository.deleteById(id);
     }

@@ -43,8 +43,10 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.createPost(postRequestDTO, email));
     }
 
-//    @PutMapping()
-//    public ResponseEntity<Post> updatePost(@RequestBody PostRequestDTO postRequestDTO) {}
+    @PatchMapping("/{postId}")
+    public ResponseEntity<Post> updatePost(@RequestBody PostRequestDTO postRequestDTO, @PathVariable Long postId) {
+        return ResponseEntity.ok(this.postService.handleUpdatePost(postRequestDTO, postId));
+    }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Post> deletePost(@PathVariable("postId") Long postId) {
