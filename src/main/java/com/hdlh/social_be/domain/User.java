@@ -51,6 +51,14 @@ public class User {
     @JsonIgnore
     private List<Post> posts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore //thêm cái này tránh lỗi lặp vô hạn ghi gán user cho FriendRequest, trong User lại có sentFriendRequest
+    private List<FriendRequest> sentFriendRequest = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<FriendRequest> receivedFriendRequest = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "city_id")
 //    @JsonBackReference
