@@ -7,6 +7,7 @@ import com.hdlh.social_be.repository.FriendRequestRepository;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,5 +35,13 @@ public class FriendRequestService {
         }
 
         return friendRequestRepository.save(newFriendRequest);
+    }
+
+    public List<FriendRequest> handleGetFriendRequestsByReceiverId(Long receiverId) {
+        return this.friendRequestRepository.findAllByReceiverId(receiverId);
+    }
+
+    public List<FriendRequest> handleGetFriendRequestsBySenderId(Long senderId) {
+        return this.friendRequestRepository.findAllBySenderId(senderId);
     }
 }

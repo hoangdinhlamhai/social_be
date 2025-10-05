@@ -39,6 +39,7 @@ public class User {
     //orphanRemoval = true:
     //Nếu xoá một Skill khỏi danh sách skills, nó sẽ tự động bị xoá khỏi database (nếu không còn liên kết).
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Skill> skills = new ArrayList<>();
 
     //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)

@@ -6,8 +6,10 @@ import com.hdlh.social_be.service.FriendRequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/friend-request")
+@RequestMapping("/api/friend-requests")
 public class FriendRequestController {
     private final FriendRequestService friendRequestService;
 
@@ -18,5 +20,15 @@ public class FriendRequestController {
     @PostMapping()
     public ResponseEntity<FriendRequest> addFriendRequest(@RequestBody FriendRequestDTO friendRequestDTO) {
         return ResponseEntity.ok(this.friendRequestService.createFriendRequest(friendRequestDTO.getSenderId(), friendRequestDTO.getReceiverId()));
+    }
+
+    @GetMapping("/receiver")
+    public ResponseEntity<List<FriendRequest>> getFriendRequestsByReceiverId(@RequestParam("receiverId") Long receiverId) {
+        return ResponseEntity.ok(this.friendRequestService.handleGetFriendRequestsByReceiverId(receiverId));
+    }
+
+    @GetMapping("/sender")
+    public ResponseEntity<List<FriendRequest>> getFriendRequestsBySenderId(@RequestParam("senderId") Long senderId) {
+        return ResponseEntity.ok(this.friendRequestService.handleGetFriendRequestsBySenderId(senderId));
     }
 }
