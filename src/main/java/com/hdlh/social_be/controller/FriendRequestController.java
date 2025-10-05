@@ -31,4 +31,9 @@ public class FriendRequestController {
     public ResponseEntity<List<FriendRequest>> getFriendRequestsBySenderId(@RequestParam("senderId") Long senderId) {
         return ResponseEntity.ok(this.friendRequestService.handleGetFriendRequestsBySenderId(senderId));
     }
+
+    @PostMapping("/accept/{friendRequestId}")
+    public ResponseEntity<FriendRequest> acceptFriendRequest(@PathVariable("friendRequestId") Long friendRequestId) {
+        return ResponseEntity.ok(this.friendRequestService.handleAcceptFriendRequest(friendRequestId));
+    }
 }

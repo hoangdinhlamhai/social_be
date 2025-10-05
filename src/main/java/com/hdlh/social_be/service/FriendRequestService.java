@@ -38,10 +38,17 @@ public class FriendRequestService {
     }
 
     public List<FriendRequest> handleGetFriendRequestsByReceiverId(Long receiverId) {
-        return this.friendRequestRepository.findAllByReceiverId(receiverId);
+        return this.friendRequestRepository.findAllByReceiverIdAndStatus(receiverId, Status.PENDING);
     }
 
     public List<FriendRequest> handleGetFriendRequestsBySenderId(Long senderId) {
-        return this.friendRequestRepository.findAllBySenderId(senderId);
+        return this.friendRequestRepository.findAllBySenderIdAndStatus(senderId, Status.PENDING);
+    }
+
+    public FriendRequest handleAcceptFriendRequest(Long id) {
+        FriendRequest friendRequest = friendRequestRepository.findById(id).orElse(null);
+        friendRequest.setStatus(Status.ACCEPTED);
+        this.friendRequestRepository.save(friendRequest);
+        return friendRequest;
     }
 }
