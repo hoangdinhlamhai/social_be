@@ -51,4 +51,11 @@ public class FriendRequestService {
         this.friendRequestRepository.save(friendRequest);
         return friendRequest;
     }
+
+    public FriendRequest handleDeclineFriendRequest(Long id) {
+        FriendRequest friendRequest = friendRequestRepository.findById(id).orElse(null);
+        friendRequest.setStatus(Status.DECLINED);
+        this.friendRequestRepository.save(friendRequest);
+        return friendRequest;
+    }
 }
