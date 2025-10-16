@@ -2,6 +2,8 @@ package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.domain.FriendRequest;
 import com.hdlh.social_be.domain.dto.friend_request.FriendRequestDTO;
+import com.hdlh.social_be.domain.dto.friend_request.FriendRequestResponseDTO;
+import com.hdlh.social_be.domain.enums.Status;
 import com.hdlh.social_be.service.FriendRequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,14 +24,14 @@ public class FriendRequestController {
         return ResponseEntity.ok(this.friendRequestService.createFriendRequest(friendRequestDTO.getSenderId(), friendRequestDTO.getReceiverId()));
     }
 
-    @GetMapping("/receiver")
-    public ResponseEntity<List<FriendRequest>> getFriendRequestsByReceiverId(@RequestParam("receiverId") Long receiverId) {
-        return ResponseEntity.ok(this.friendRequestService.handleGetFriendRequestsByReceiverId(receiverId));
+    @GetMapping("/receiver/{status}")
+    public ResponseEntity<List<FriendRequestResponseDTO>> getFriendRequestsByReceiverId(@RequestParam("receiverId") Long receiverId, @PathVariable("status") Status status) {
+        return ResponseEntity.ok(this.friendRequestService.handleGetFriendRequestsByReceiverId(receiverId, status));
     }
 
-    @GetMapping("/sender")
-    public ResponseEntity<List<FriendRequest>> getFriendRequestsBySenderId(@RequestParam("senderId") Long senderId) {
-        return ResponseEntity.ok(this.friendRequestService.handleGetFriendRequestsBySenderId(senderId));
+    @GetMapping("/sender/{status}")
+    public ResponseEntity<List<FriendRequestResponseDTO>> getFriendRequestsBySenderId(@RequestParam("senderId") Long senderId, @PathVariable("status") Status status) {
+        return ResponseEntity.ok(this.friendRequestService.handleGetFriendRequestsBySenderId(senderId, status));
     }
 
     @PostMapping("/accept/{friendRequestId}")

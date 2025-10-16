@@ -2,6 +2,7 @@ package com.hdlh.social_be.service;
 
 import com.hdlh.social_be.domain.FriendRequest;
 import com.hdlh.social_be.domain.User;
+import com.hdlh.social_be.domain.dto.friend_request.FriendRequestResponseDTO;
 import com.hdlh.social_be.domain.enums.Status;
 import com.hdlh.social_be.repository.FriendRequestRepository;
 import com.hdlh.social_be.repository.UserRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendRequestService {
@@ -37,12 +39,62 @@ public class FriendRequestService {
         return friendRequestRepository.save(newFriendRequest);
     }
 
-    public List<FriendRequest> handleGetFriendRequestsByReceiverId(Long receiverId) {
-        return this.friendRequestRepository.findAllByReceiverIdAndStatus(receiverId, Status.PENDING);
+    public List<FriendRequestResponseDTO> handleGetFriendRequestsByReceiverId(Long receiverId, Status status) {
+        List<FriendRequest> requests = friendRequestRepository.findAllByReceiverIdAndStatus(receiverId, status);
+
+        return requests.stream().map(
+            req -> new FriendRequestResponseDTO(
+                    req.getId(),
+                    req.getStatus(),
+                    new FriendRequestResponseDTO.UserInfo(
+                            req.getSender().getId(),
+                            req.getSender().getAccount().getEmail(),
+                            req.getSender().getFirstName(),
+                            req.getSender().getLastName(),
+                            req.getSender().getAvatarUrl(),
+                            req.getSender().getCoverPhotoUrl(),
+                            req.getSender().getBio()
+                    ),
+                    new FriendRequestResponseDTO.UserInfo(
+                            req.getReceiver().getId(),
+                            req.getReceiver().getAccount().getEmail(),
+                            req.getReceiver().getFirstName(),
+                            req.getReceiver().getLastName(),
+                            req.getReceiver().getAvatarUrl(),
+                            req.getReceiver().getCoverPhotoUrl(),
+                            req.getReceiver().getBio()
+                    )
+            )
+        ).collect(Collectors.toList());
     }
 
-    public List<FriendRequest> handleGetFriendRequestsBySenderId(Long senderId) {
-        return this.friendRequestRepository.findAllBySenderIdAndStatus(senderId, Status.PENDING);
+    public List<FriendRequestResponseDTO> handleGetFriendRequestsBySenderId(Long senderId, Status status) {
+        List<FriendRequest> requests = friendRequestRepository.findAllBySenderIdAndStatus(senderId, status);
+
+        return requests.stream().map(
+                req -> new FriendRequestResponseDTO(
+                        req.getId(),
+                        req.getStatus(),
+                        new FriendRequestResponseDTO.UserInfo(
+                                req.getSender().getId(),
+                                req.getSender().getAccount().getEmail(),
+                                req.getSender().getFirstName(),
+                                req.getSender().getLastName(),
+                                req.getSender().getAvatarUrl(),
+                                req.getSender().getCoverPhotoUrl(),
+                                req.getSender().getBio()
+                        ),
+                        new FriendRequestResponseDTO.UserInfo(
+                                req.getReceiver().getId(),
+                                req.getReceiver().getAccount().getEmail(),
+                                req.getReceiver().getFirstName(),
+                                req.getReceiver().getLastName(),
+                                req.getReceiver().getAvatarUrl(),
+                                req.getReceiver().getCoverPhotoUrl(),
+                                req.getReceiver().getBio()
+                        )
+                )
+        ).collect(Collectors.toList());
     }
 
     public FriendRequest handleAcceptFriendRequest(Long id) {
