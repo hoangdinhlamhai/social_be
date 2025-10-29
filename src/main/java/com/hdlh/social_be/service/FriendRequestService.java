@@ -110,4 +110,9 @@ public class FriendRequestService {
         this.friendRequestRepository.save(friendRequest);
         return friendRequest;
     }
+
+    public FriendRequest handleDeleteFriendById(Long id) {
+        this.friendRequestRepository.deleteById(id);
+        return null;
+    }
 }

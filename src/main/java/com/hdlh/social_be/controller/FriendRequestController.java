@@ -43,4 +43,9 @@ public class FriendRequestController {
     public ResponseEntity<FriendRequest> declineFriendRequest(@PathVariable("friendRequestId") Long friendRequestId) {
         return ResponseEntity.ok(this.friendRequestService.handleDeclineFriendRequest(friendRequestId));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<FriendRequest> deleteFriend(@PathVariable Long id) {
+        return ResponseEntity.ok(this.friendRequestService.handleDeleteFriendById(id));
+    }
 }
