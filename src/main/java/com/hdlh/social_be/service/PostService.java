@@ -6,7 +6,7 @@ import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.post.PostRequestDTO;
 import com.hdlh.social_be.repository.PostRepository;
 import com.hdlh.social_be.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +20,15 @@ public class PostService {
     public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+    }
+
+    public List<Post> handleGetPostsNewsFeed(Long lastId, int limit) {
+        if (lastId == null) {
+            //khi load lần đầu: fetch 5 bài mới nhất (trang thứ 0, limit bản ghi)
+            return this.postRepository.findAllByOrderByIdDesc(PageRequest.of(0, limit));
+        }
+        //lấy bài cũ hơn (id nhỏ hơn id cuối cùng ở method trên)
+        return this.postRepository.findByIdLessThanOrderByIdDesc(lastId, PageRequest.of(0, limit));
     }
 
     public List<Post> handleGetAllPostsByEmail(String email) {

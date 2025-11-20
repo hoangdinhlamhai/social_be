@@ -6,9 +6,7 @@ import com.hdlh.social_be.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +18,14 @@ public class PostController {
 
     public PostController(PostService postService) {
         this.postService = postService;
+    }
+
+    @GetMapping("/newsfeed")
+    public ResponseEntity<List<Post>> getAllPostsNewsFeed(
+                                        @RequestParam(required = false) Long lastId,
+                                        @RequestParam(defaultValue = "5") int limit
+                                        ) {
+        return ResponseEntity.ok(this.postService.handleGetPostsNewsFeed(lastId, limit));
     }
 
     @GetMapping("")

@@ -1,11 +1,9 @@
 package com.hdlh.social_be.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,6 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "user_id") // khoá ngoại
-    @JsonBackReference
     private User user;
 
     //bên class kia phải có trường post (và ở table bên kia phải có khoá ngoại post_id)

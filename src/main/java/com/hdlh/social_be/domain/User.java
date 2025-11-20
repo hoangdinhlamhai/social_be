@@ -48,8 +48,7 @@ public class User {
 
     //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonManagedReference
-    @JsonIgnore
+    @JsonIgnore //bỏ qua trường này khi gọi user để tránh lặp (user -> post, trong post lại gọi user -> post)
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
