@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum AccountType {
+  PERSONAL
+  COMPANY
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+// ==================== MODELS ====================
+
+model Account {
+  id           Long        @id @default(autoincrement())
+  email        String      @unique
+  password     String
+  refreshToken String?     @db.MediumText
+  accountType  AccountType?
+  createdAt    DateTime    @default(now()) @db.Timestamp(0)
+  otp          String?
+  expiredAt    DateTime?
+
+  user    User?
+  company Company?
+
+  @@map("accounts")
+}
+
+model User {
+  id            Long    @id @default(autoincrement())
+  accountId     Long    @unique @map("account_id")
+  firstName     String?
+  lastName      String?
+  avatarUrl     String?
+  coverPhotoUrl String?
+  bio           String?
+  cityId        Long?   @map("city_id")
+
+  // Relations
+  account              Account        @relation(fields: [accountId], references: [id])
+  city                 City?          @relation(fields: [cityId], references: [id])
+  skills               Skill[]
+  experiences          Experience[]
+  posts                Post[]
+  sentFriendRequests   FriendRequest[] @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  chatRoomParticipants ChatRoomParticipant[]
+  sentMessages         Message[]
+
+  @@map("users")
+}
+
+model Company {
+  id          Long    @id @default(autoincrement())
+  accountId   Long    @unique @map("account_id")
+  name        String?
+  logoUrl     String?
+  description String?
+
+  // Relations
+  account     Account      @relation(fields: [accountId], references: [id])
+  experiences Experience[]
+
+  @@map("companies")
+}
+
+model Post {
+  id         Long      @id @default(autoincrement())
+  content    String?
+  createAt   DateTime  @default(now())
+  visibility String?
+  userId     Long      @map("user_id")
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id])
+  postImages PostImage[]
+
+  @@map("posts")
+}
+
+model PostImage {
+  id     Long   @id @default(autoincrement())
+  url    String?
+  postId Long   @map("post_id")
+
+  // Relations
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_images")
+}
+
+model Skill {
+  id               Long    @id @default(autoincrement())
+  skillName        String?
+  skillDescription String?
+  userId           Long    @map("user_id")
+
+  // Relations
+  user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("skills")
+}
+
+model Experience {
+  id          Long      @id @default(autoincrement())
+  startDate   DateTime? @db.Date
+  endDate     DateTime? @db.Date
+  isCurrent   Boolean   @default(false) @map("is_current")
+  description String?
+  userId      Long      @map("user_id")
+  companyId   Long?     @map("company_id")
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company     Company?  @relation(fields: [companyId], references: [id])
+
+  @@map("experiences")
+}
+
+model FriendRequest {
+  id         Long                @id @default(autoincrement())
+  status     FriendRequestStatus @default(PENDING)
+  senderId   Long                @map("sender_id")
+  receiverId Long                @map("receiver_id")
+
+  // Relations
+  sender     User                @relation("SentFriendRequests", fields: [senderId], references: [id])
+  receiver   User                @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+
+  @@map("friend_requests")
+}
+
+model ChatRoom {
+  id           Long      @id @default(autoincrement())
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  participants ChatRoomParticipant[]
+  messages     Message[]
+
+  @@map("chat_rooms")
+}
+
+model ChatRoomParticipant {
+  roomId Long @map("room_id")
+  userId Long @map("user_id")
+
+  // Relations
+  chatRoom ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, userId])
+  @@map("chat_room_participants")
+}
+
+model Message {
+  id       Long     @id @default(autoincrement())
+  roomId   Long     @map("room_id")
+  senderId Long     @map("sender_id")
+  content  String   @db.Text
+  sentAt   DateTime @default(now()) @map("sent_at")
+
+  // Relations
+  room     ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender   User     @relation(fields: [senderId], references: [id])
+
+  @@map("messages")
+}
+
+model Country {
+  id     Long   @id @default(autoincrement())
+  name   String?
+
+  // Relations
+  cities City[]
+
+  @@map("countries")
+}
+
+model City {
+  id        Long    @id @default(autoincrement())
+  name      String?
+  countryId Long?   @map("country_id")
+
+  // Relations
+  country   Country? @relation(fields: [countryId], references: [id])
+  users     User[]
+
+  @@map("cities")
+}

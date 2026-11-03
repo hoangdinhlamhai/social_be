@@ -2,6 +2,7 @@ package com.hdlh.social_be.controller;
 
 import com.hdlh.social_be.domain.Post;
 import com.hdlh.social_be.domain.dto.post.PostRequestDTO;
+import com.hdlh.social_be.domain.dto.post.PostResponseDTO;
 import com.hdlh.social_be.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class PostController {
     }
 
     @GetMapping("/newsfeed")
-    public ResponseEntity<List<Post>> getAllPostsNewsFeed(
+    public ResponseEntity<List<PostResponseDTO>> getAllPostsNewsFeed(
                                         @RequestParam(required = false) Long lastId,
                                         @RequestParam(defaultValue = "5") int limit
                                         ) {

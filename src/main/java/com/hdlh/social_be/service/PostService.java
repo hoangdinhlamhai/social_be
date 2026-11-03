@@ -4,6 +4,8 @@ import com.hdlh.social_be.domain.Post;
 import com.hdlh.social_be.domain.PostImage;
 import com.hdlh.social_be.domain.User;
 import com.hdlh.social_be.domain.dto.post.PostRequestDTO;
+import com.hdlh.social_be.domain.dto.post.PostResponseDTO;
+import org.springframework.transaction.annotation.Transactional;
 import com.hdlh.social_be.repository.PostRepository;
 import com.hdlh.social_be.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
@@ -22,13 +24,30 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    public List<Post> handleGetPostsNewsFeed(Long lastId, int limit) {
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> handleGetPostsNewsFeed(Long lastId, int limit) {
+        List<Post> posts;
         if (lastId == null) {
             //khi load lần đầu: fetch 5 bài mới nhất (trang thứ 0, limit bản ghi)
-            return this.postRepository.findAllByOrderByIdDesc(PageRequest.of(0, limit));
+            posts = this.postRepository.findAllByOrderByIdDesc(PageRequest.of(0, limit));
+        } else {
+            //lấy bài cũ hơn (id nhỏ hơn id cuối cùng ở method trên)
+            posts = this.postRepository.findByIdLessThanOrderByIdDesc(lastId, PageRequest.of(0, limit));
         }
-        //lấy bài cũ hơn (id nhỏ hơn id cuối cùng ở method trên)
-        return this.postRepository.findByIdLessThanOrderByIdDesc(lastId, PageRequest.of(0, limit));
+        // Map trong transaction để Jackson không truy vấn lazy khi ghi JSON.
+        return posts.stream().map(this::convertToPostResponseDTO).toList();
+    }
+
+    private PostResponseDTO convertToPostResponseDTO(Post post) {
+        User user = post.getUser();
+        PostResponseDTO.UserInfo userInfo = user == null ? null : new PostResponseDTO.UserInfo(
+                user.getId(), user.getFirstName(), user.getLastName(),
+                user.getAvatarUrl(), user.getCoverPhotoUrl(), user.getBio());
+        List<PostResponseDTO.PostImageInfo> postImages = post.getPostImages().stream()
+                .map(image -> new PostResponseDTO.PostImageInfo(image.getId(), image.getUrl()))
+                .toList();
+        return new PostResponseDTO(post.getId(), post.getContent(), post.getCreateAt(),
+                post.getVisibility(), userInfo, postImages);
     }
 
     public List<Post> handleGetAllPostsByEmail(String email) {
