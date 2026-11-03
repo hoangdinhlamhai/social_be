@@ -44,6 +44,7 @@ public class User {
 
     //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Experience> experiences = new ArrayList<>();
 
     //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)

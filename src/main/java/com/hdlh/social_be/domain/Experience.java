@@ -21,7 +21,12 @@ public class Experience {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isCurrent;
+    @Column(length = 5000)
     private String description;
+    private String title;
+    private String companyName;
+    private String employmentType;
+    private String location;
 
     @ManyToOne
     @JoinColumn(name = "user_id") // khoá ngoại
