@@ -47,6 +47,10 @@ public class User {
     @JsonIgnore
     private List<Experience> experiences = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Education> educations = new ArrayList<>();
+
     //bên class kia phải có trường user (và ở table bên kia phải có khoá ngoại user_id)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore //bỏ qua trường này khi gọi user để tránh lặp (user -> post, trong post lại gọi user -> post)
